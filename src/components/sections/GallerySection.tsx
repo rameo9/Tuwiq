@@ -138,10 +138,9 @@ export default function GallerySection({
             <motion.div
               key={image.id}
               initial={{ opacity: 0, y: 100, rotateX: -30 }}
-              whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
-              viewport={{ once: true, margin: '-50px' }}
-              transition={{ 
-                delay: index * 0.1, 
+              animate={{ opacity: 1, y: 0, rotateX: 0 }}
+              transition={{
+                delay: index * 0.1,
                 duration: 0.8,
                 type: 'spring',
                 stiffness: 100,
