@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model AdminUser {
+  id           Int      @id @default(autoincrement())
+  username     String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
+
+model Project {
+  id            Int               @id @default(autoincrement())
+  titleAr       String
+  titleEn       String
+  locationAr    String
+  locationEn    String
+  descriptionAr String            @default("")
+  descriptionEn String            @default("")
+  area          String
+  units         String
+  status        String            @default("active")
+  categoryAr    String            @default("سكني")
+  categoryEn    String            @default("Residential")
+  mainImageUrl  String
+  pdfUrl          String?
+  completionYear  String            @default("")
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  images        ProjectImage[]
+  features      ProjectFeature[]
+  viewCount     Int               @default(0)
+}
+
+model ProjectImage {
+  id        Int     @id @default(autoincrement())
+  projectId Int
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  url       String
+  sortOrder Int     @default(0)
+}
+
+model ProjectFeature {
+  id        Int     @id @default(autoincrement())
+  projectId Int
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  textAr    String
+  textEn    String
+  sortOrder Int     @default(0)
+}
+
+model GalleryItem {
+  id        Int    @id @default(autoincrement())
+  src       String
+  titleAr   String
+  titleEn   String
+  category  String @default("interior")
+  size      String @default("medium")
+  sortOrder Int    @default(0)
+}
+
+model ContactMessage {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  phone     String   @default("")
+  subject   String   @default("")
+  message   String
+  isRead    Boolean  @default(false)
+  isStarred Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model SocialLink {
+  id        Int     @id @default(autoincrement())
+  platform  String
+  url       String
+  enabled   Boolean @default(true)
+  sortOrder Int     @default(0)
+}
+
+model ServiceItem {
+  id            Int     @id @default(autoincrement())
+  slug          String  @unique
+  iconId        String  @default("building")
+  titleAr       String
+  titleEn       String
+  descriptionAr String  @default("")
+  descriptionEn String  @default("")
+  imageUrl      String
+  enabled       Boolean @default(true)
+  sortOrder     Int     @default(0)
+}
+
+model SiteSetting {
+  key   String @id
+  value String
+}
+
+model NewsletterSubscriber {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}
