@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import type { SitePayload } from '@/lib/cms-defaults';
+import { uploadAdminFile } from '@/lib/client-upload';
 import {
   Save,
   Upload,
@@ -61,16 +62,12 @@ export default function AdminSettings() {
   }, []);
 
   const uploadFile = async (field: 'logo' | 'favicon', file: File) => {
-    const fd = new FormData();
-    fd.append('file', file);
-    const res = await fetch('/api/upload', {
-      method: 'POST',
-      body: fd,
-      credentials: 'include',
-    });
-    const j = (await res.json()) as { url?: string; error?: string };
-    if (!res.ok) throw new Error(j.error || 'رفع فاشل');
-    setSettings((prev) => (prev ? { ...prev, [field]: j.url ?? '' } : prev));
+    try {
+      const url = await uploadAdminFile(file);
+      setSettings((prev) => (prev ? { ...prev, [field]: url } : prev));
+    } catch (e) {
+      window.alert(e instanceof Error ? e.message : 'فشل الرفع');
+    }
   };
 
   const handleSave = async () => {
@@ -232,12 +229,12 @@ export default function AdminSettings() {
               {/* Logo Upload */}
               <input ref={logoInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => {
                 const f = e.target.files?.[0];
-                if (f) void uploadFile('logo', f).catch(() => window.alert('فشل رفع الشعار'));
+                if (f) void uploadFile('logo', f);
                 e.target.value = '';
               }} />
               <input ref={faviconInputRef} type="file" accept="image/*,.ico" className="hidden" onChange={(e) => {
                 const f = e.target.files?.[0];
-                if (f) void uploadFile('favicon', f).catch(() => window.alert('فشل رفع الأيقونة'));
+                if (f) void uploadFile('favicon', f);
                 e.target.value = '';
               }} />
               <div className="grid md:grid-cols-2 gap-6">

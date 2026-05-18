@@ -10,6 +10,7 @@ import {
   Save,
   Loader2,
 } from 'lucide-react';
+import { uploadAdminFile } from '@/lib/client-upload';
 
 type GalleryRow = {
   id: number;
@@ -66,18 +67,7 @@ export default function AdminGallery() {
       ? items
       : items.filter((img) => img.category === activeCategory);
 
-  const uploadFile = async (file: File) => {
-    const fd = new FormData();
-    fd.append('file', file);
-    const res = await fetch('/api/upload', {
-      method: 'POST',
-      body: fd,
-      credentials: 'include',
-    });
-    const j = (await res.json()) as { url?: string; error?: string };
-    if (!res.ok) throw new Error(j.error || 'رفع فاشل');
-    return j.url as string;
-  };
+  const uploadFile = (file: File) => uploadAdminFile(file);
 
   const handleDelete = async (id: number) => {
     if (!confirm('هل أنت متأكد من حذف هذه الصورة؟')) return;
@@ -291,8 +281,8 @@ export default function AdminGallery() {
                     try {
                       const url = await uploadFile(file);
                       setForm((f) => ({ ...f, src: url }));
-                    } catch {
-                      window.alert('فشل الرفع');
+                    } catch (err) {
+                      window.alert(err instanceof Error ? err.message : 'فشل الرفع');
                     }
                     e.target.value = '';
                   }}

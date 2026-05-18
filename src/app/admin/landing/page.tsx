@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Save,
@@ -15,6 +15,7 @@ import {
   Loader2,
 } from 'lucide-react';
 
+import { uploadAdminFile } from '@/lib/client-upload';
 import { defaultLanding } from '@/lib/cms-defaults';
 
 function clone<T>(data: T): T {
@@ -26,8 +27,23 @@ export default function AdminLanding() {
   const [landingLoading, setLandingLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [heroData, setHeroData] = useState(() => clone(defaultLanding.hero));
+  const [heroTextLang, setHeroTextLang] = useState<'ar' | 'en'>('ar');
+  const [heroImageBusy, setHeroImageBusy] = useState(false);
+  const heroImageInputRef = useRef<HTMLInputElement>(null);
   const [aboutData, setAboutData] = useState(() => clone(defaultLanding.about));
   const [footerData, setFooterData] = useState(() => clone(defaultLanding.footer));
+
+  const addHeroSlideImage = async (file: File) => {
+    setHeroImageBusy(true);
+    try {
+      const url = await uploadAdminFile(file);
+      setHeroData((prev) => ({ ...prev, images: [...prev.images, url] }));
+    } catch (e) {
+      window.alert(e instanceof Error ? e.message : 'فشل رفع الصورة.');
+    } finally {
+      setHeroImageBusy(false);
+    }
+  };
 
   const sections = [
     { id: 'hero', label: 'القسم الرئيسي (Hero)', icon: ImageIcon },
@@ -161,10 +177,26 @@ export default function AdminLanding() {
 
                 {/* Language Tabs */}
                 <div className="flex gap-2 p-1 bg-dark-800 rounded-xl w-fit">
-                  <button className="py-2 px-4 rounded-lg font-medium bg-gold-500 text-dark-900">
+                  <button
+                    type="button"
+                    onClick={() => setHeroTextLang('ar')}
+                    className={`py-2 px-4 rounded-lg font-medium transition-colors ${
+                      heroTextLang === 'ar'
+                        ? 'bg-gold-500 text-dark-900'
+                        : 'text-dark-400 hover:text-white'
+                    }`}
+                  >
                     العربية
                   </button>
-                  <button className="py-2 px-4 rounded-lg font-medium text-dark-400 hover:text-white">
+                  <button
+                    type="button"
+                    onClick={() => setHeroTextLang('en')}
+                    className={`py-2 px-4 rounded-lg font-medium transition-colors ${
+                      heroTextLang === 'en'
+                        ? 'bg-gold-500 text-dark-900'
+                        : 'text-dark-400 hover:text-white'
+                    }`}
+                  >
                     English
                   </button>
                 </div>
@@ -172,60 +204,68 @@ export default function AdminLanding() {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-dark-300 text-sm font-medium mb-2">
-                      العنوان الفرعي
+                      {heroTextLang === 'ar' ? 'العنوان الفرعي' : 'Subtitle'}
                     </label>
                     <input
                       type="text"
-                      value={heroData.subtitle.ar}
-                      onChange={(e) => setHeroData(prev => ({
-                        ...prev,
-                        subtitle: { ...prev.subtitle, ar: e.target.value }
-                      }))}
+                      value={heroData.subtitle[heroTextLang]}
+                      onChange={(e) =>
+                        setHeroData((prev) => ({
+                          ...prev,
+                          subtitle: { ...prev.subtitle, [heroTextLang]: e.target.value },
+                        }))
+                      }
                       className="w-full px-4 py-3 bg-dark-800 border border-dark-700 rounded-xl text-white focus:outline-none focus:border-gold-500/50"
                     />
                   </div>
 
                   <div>
                     <label className="block text-dark-300 text-sm font-medium mb-2">
-                      العنوان الرئيسي
+                      {heroTextLang === 'ar' ? 'العنوان الرئيسي' : 'Main title'}
                     </label>
                     <input
                       type="text"
-                      value={heroData.title.ar}
-                      onChange={(e) => setHeroData(prev => ({
-                        ...prev,
-                        title: { ...prev.title, ar: e.target.value }
-                      }))}
+                      value={heroData.title[heroTextLang]}
+                      onChange={(e) =>
+                        setHeroData((prev) => ({
+                          ...prev,
+                          title: { ...prev.title, [heroTextLang]: e.target.value },
+                        }))
+                      }
                       className="w-full px-4 py-3 bg-dark-800 border border-dark-700 rounded-xl text-white focus:outline-none focus:border-gold-500/50"
                     />
                   </div>
 
                   <div>
                     <label className="block text-dark-300 text-sm font-medium mb-2">
-                      الوصف
+                      {heroTextLang === 'ar' ? 'الوصف' : 'Description'}
                     </label>
                     <textarea
                       rows={3}
-                      value={heroData.description.ar}
-                      onChange={(e) => setHeroData(prev => ({
-                        ...prev,
-                        description: { ...prev.description, ar: e.target.value }
-                      }))}
+                      value={heroData.description[heroTextLang]}
+                      onChange={(e) =>
+                        setHeroData((prev) => ({
+                          ...prev,
+                          description: { ...prev.description, [heroTextLang]: e.target.value },
+                        }))
+                      }
                       className="w-full px-4 py-3 bg-dark-800 border border-dark-700 rounded-xl text-white focus:outline-none focus:border-gold-500/50 resize-none"
                     />
                   </div>
 
                   <div>
                     <label className="block text-dark-300 text-sm font-medium mb-2">
-                      نص الزر
+                      {heroTextLang === 'ar' ? 'نص الزر' : 'Button text'}
                     </label>
                     <input
                       type="text"
-                      value={heroData.ctaText.ar}
-                      onChange={(e) => setHeroData(prev => ({
-                        ...prev,
-                        ctaText: { ...prev.ctaText, ar: e.target.value }
-                      }))}
+                      value={heroData.ctaText[heroTextLang]}
+                      onChange={(e) =>
+                        setHeroData((prev) => ({
+                          ...prev,
+                          ctaText: { ...prev.ctaText, [heroTextLang]: e.target.value },
+                        }))
+                      }
                       className="w-full px-4 py-3 bg-dark-800 border border-dark-700 rounded-xl text-white focus:outline-none focus:border-gold-500/50"
                     />
                   </div>
@@ -234,34 +274,71 @@ export default function AdminLanding() {
 
               {/* Hero Images */}
               <div className="bg-dark-900 rounded-2xl border border-dark-800 p-6 space-y-4">
+                <input
+                  ref={heroImageInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={async (ev) => {
+                    const file = ev.target.files?.[0];
+                    ev.target.value = '';
+                    if (file) await addHeroSlideImage(file);
+                  }}
+                />
                 <div className="flex items-center justify-between">
                   <h2 className="text-lg font-bold text-white">صور السلايدر</h2>
-                  <button className="flex items-center gap-2 text-gold-400 text-sm font-medium">
+                  <button
+                    type="button"
+                    disabled={heroImageBusy}
+                    onClick={() => heroImageInputRef.current?.click()}
+                    className="flex items-center gap-2 text-gold-400 text-sm font-medium disabled:opacity-50"
+                  >
                     <Plus className="w-4 h-4" />
-                    إضافة صورة
+                    {heroImageBusy ? 'جاري الرفع...' : 'إضافة صورة'}
                   </button>
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {heroData.images.map((img, index) => (
-                    <div key={index} className="relative group aspect-video rounded-xl overflow-hidden">
+                    <div
+                      key={`${img}-${index}`}
+                      className="relative group aspect-video rounded-xl overflow-hidden"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={img} alt="" className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-dark-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                        <button className="p-2 rounded-lg bg-dark-900/80 text-white">
+                        <span className="p-2 rounded-lg bg-dark-900/80 text-white opacity-85">
                           <GripVertical className="w-4 h-4" />
-                        </button>
-                        <button className="p-2 rounded-lg bg-red-500/80 text-white">
+                        </span>
+                        <button
+                          type="button"
+                          aria-label={`حذف الصورة ${index + 1}`}
+                          className="p-2 rounded-lg bg-red-500/80 text-white hover:bg-red-500"
+                          onClick={() =>
+                            setHeroData((prev) => ({
+                              ...prev,
+                              images: prev.images.filter((_, i) => i !== index),
+                            }))
+                          }
+                        >
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
                   ))}
-                  <div className="aspect-video rounded-xl border-2 border-dashed border-dark-700 flex items-center justify-center cursor-pointer hover:border-gold-500/50 transition-colors">
+                  <button
+                    type="button"
+                    disabled={heroImageBusy}
+                    onClick={() => heroImageInputRef.current?.click()}
+                    className="aspect-video rounded-xl border-2 border-dashed border-dark-700 flex items-center justify-center cursor-pointer hover:border-gold-500/50 transition-colors disabled:opacity-50"
+                  >
                     <div className="text-center">
                       <Upload className="w-8 h-8 text-dark-500 mx-auto mb-2" />
-                      <span className="text-dark-500 text-sm">إضافة صورة</span>
+                      <span className="text-dark-500 text-sm">
+                        {heroImageBusy ? 'انتظر...' : 'إضافة صورة'}
+                      </span>
                     </div>
-                  </div>
+                  </button>
                 </div>
               </div>
 
@@ -269,7 +346,16 @@ export default function AdminLanding() {
               <div className="bg-dark-900 rounded-2xl border border-dark-800 p-6 space-y-4">
                 <div className="flex items-center justify-between">
                   <h2 className="text-lg font-bold text-white">الإحصائيات</h2>
-                  <button className="flex items-center gap-2 text-gold-400 text-sm font-medium">
+                  <button
+                    type="button"
+                    className="flex items-center gap-2 text-gold-400 text-sm font-medium"
+                    onClick={() =>
+                      setHeroData((prev) => ({
+                        ...prev,
+                        stats: [...prev.stats, { value: '', label: { ar: '', en: '' } }],
+                      }))
+                    }
+                  >
                     <Plus className="w-4 h-4" />
                     إضافة إحصائية
                   </button>
@@ -278,18 +364,50 @@ export default function AdminLanding() {
                 <div className="space-y-3">
                   {heroData.stats.map((stat, index) => (
                     <div key={index} className="flex items-center gap-4 p-4 bg-dark-800 rounded-xl">
-                      <GripVertical className="w-5 h-5 text-dark-500 cursor-grab" />
+                      <GripVertical className="w-5 h-5 text-dark-500 shrink-0" />
                       <input
                         type="text"
                         value={stat.value}
-                        className="w-24 px-3 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white text-center font-bold"
+                        placeholder="١٥٠+"
+                        onChange={(e) =>
+                          setHeroData((prev) => {
+                            const stats = [...prev.stats];
+                            stats[index] = { ...stats[index], value: e.target.value };
+                            return { ...prev, stats };
+                          })
+                        }
+                        className="w-24 shrink-0 px-3 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white text-center font-bold"
                       />
                       <input
                         type="text"
-                        value={stat.label.ar}
-                        className="flex-1 px-3 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white"
+                        value={stat.label[heroTextLang]}
+                        placeholder={heroTextLang === 'ar' ? 'التسمية' : 'Label'}
+                        onChange={(e) =>
+                          setHeroData((prev) => {
+                            const stats = [...prev.stats];
+                            stats[index] = {
+                              ...stats[index],
+                              label: {
+                                ...stats[index].label,
+                                [heroTextLang]: e.target.value,
+                              },
+                            };
+                            return { ...prev, stats };
+                          })
+                        }
+                        className="flex-1 min-w-0 px-3 py-2 bg-dark-700 border border-dark-600 rounded-lg text-white"
                       />
-                      <button className="p-2 rounded-lg bg-red-500/20 text-red-500 hover:bg-red-500/30">
+                      <button
+                        type="button"
+                        aria-label={`حذف الإحصائية ${index + 1}`}
+                        className="p-2 shrink-0 rounded-lg bg-red-500/20 text-red-500 hover:bg-red-500/30"
+                        onClick={() =>
+                          setHeroData((prev) => ({
+                            ...prev,
+                            stats: prev.stats.filter((_, i) => i !== index),
+                          }))
+                        }
+                      >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>

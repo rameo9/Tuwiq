@@ -16,6 +16,7 @@ import {
   ChevronDown,
   Loader2,
 } from 'lucide-react';
+import { uploadAdminFile } from '@/lib/client-upload';
 
 type ApiProject = {
   id: number;
@@ -156,18 +157,7 @@ export default function AdminProjects() {
     setEditingId(null);
   };
 
-  const uploadFile = async (file: File) => {
-    const fd = new FormData();
-    fd.append('file', file);
-    const res = await fetch('/api/upload', {
-      method: 'POST',
-      body: fd,
-      credentials: 'include',
-    });
-    const j = (await res.json()) as { url?: string; error?: string };
-    if (!res.ok) throw new Error(j.error || 'رفع فاشل');
-    return j.url as string;
-  };
+  const uploadFile = (file: File) => uploadAdminFile(file);
 
   const buildBody = () => {
     const galleryUrls = formData.galleryUrlsText
