@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { SignJWT } from 'jose';
 import { prisma } from '@/lib/prisma';
-import { encodedJwtSecret } from '@/lib/api-auth';
+import { encodedJwtSecret, isHttpsRequest } from '@/lib/api-auth';
 
 export async function POST(req: NextRequest) {
   try {
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
     const res = NextResponse.json({ ok: true });
     res.cookies.set('saqr_admin_token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isHttpsRequest(req),
       sameSite: 'lax',
       path: '/',
       maxAge: 60 * 60 * 24 * 7,

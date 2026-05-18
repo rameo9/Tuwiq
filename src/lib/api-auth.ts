@@ -1,5 +1,14 @@
+import type { NextRequest } from 'next/server';
 import { cookies } from 'next/headers';
 import { jwtVerify } from 'jose';
+
+/** Browsers refuse Secure cookies on plain HTTP — use only real HTTPS (or terminating proxy says so). */
+export function isHttpsRequest(req: NextRequest): boolean {
+  const fwd = req.headers.get('x-forwarded-proto')?.split(',')[0]?.trim();
+  if (fwd === 'https') return true;
+  if (fwd === 'http') return false;
+  return new URL(req.url).protocol === 'https:';
+}
 
 export function encodedJwtSecret(): Uint8Array {
   const secret =
