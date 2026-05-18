@@ -3,6 +3,7 @@ import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { verifyAdminSession } from '@/lib/api-auth';
+import { getUploadDir } from '@/lib/upload-dir';
 
 const MAX = 15 * 1024 * 1024;
 const ALLOWED = new Set([
@@ -32,9 +33,10 @@ export async function POST(req: NextRequest) {
     const buf = Buffer.from(await file.arrayBuffer());
     const ext = path.extname(file.name).slice(0, 8) || (file.type === 'application/pdf' ? '.pdf' : '');
     const name = `${uuidv4()}${ext}`;
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+    const uploadDir = getUploadDir();
     await mkdir(uploadDir, { recursive: true });
     await writeFile(path.join(uploadDir, name), buf);
+    console.info('[upload] saved', path.join(uploadDir, name));
     return NextResponse.json({ url: `/uploads/${name}` });
   } catch (e) {
     console.error(e);
