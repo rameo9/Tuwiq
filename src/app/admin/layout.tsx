@@ -24,6 +24,7 @@ import {
   Palette,
   Link2,
   Megaphone,
+  Newspaper,
 } from 'lucide-react';
 
 const menuItems = [
@@ -34,6 +35,7 @@ const menuItems = [
   { icon: FileText, label: { ar: 'الخدمات', en: 'Services' }, href: '/admin/services' },
   { icon: Megaphone, label: { ar: 'التسويق', en: 'Marketing' }, href: '/admin/marketing' },
   { icon: Mail, label: { ar: 'الرسائل', en: 'Messages' }, href: '/admin/messages' },
+  { icon: Newspaper, label: { ar: 'النشرة البريدية', en: 'Newsletter' }, href: '/admin/newsletter' },
   { icon: Link2, label: { ar: 'الروابط الاجتماعية', en: 'Social Links' }, href: '/admin/social' },
   { icon: Palette, label: { ar: 'الثيم والألوان', en: 'Theme & Colors' }, href: '/admin/theme' },
   { icon: Settings, label: { ar: 'الإعدادات', en: 'Settings' }, href: '/admin/settings' },
