@@ -261,7 +261,7 @@ export default function AdminMarketingPage() {
                     </div>
                     <div className="min-w-0">
                       <h3 className="text-lg font-bold text-white truncate">{m.name}</h3>
-                      <p className="text-dark-400 text-sm font-mono truncate">?ref={m.slug}</p>
+                      <p className="text-dark-400 text-sm font-mono truncate">/r/{m.slug}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4 shrink-0">
@@ -467,10 +467,10 @@ export default function AdminMarketingPage() {
       <div className="rounded-xl border border-gold-500/20 bg-gold-500/5 p-4 text-dark-300 text-sm">
         <p className="font-medium text-gold-400 mb-2">كيف يعمل؟</p>
         <ul className="list-disc list-inside space-y-1 text-dark-400">
-          <li>كل مسوق له رمز فريد: <code className="text-gold-400">?ref=الرمز</code></li>
-          <li>رابط الموقع: <code className="text-gold-400">yoursite.com/?ref=ahmed</code></li>
-          <li>رابط مشروع: <code className="text-gold-400">yoursite.com/projects/7?ref=ahmed</code></li>
-          <li>الدولة تُحدَّد عبر Cloudflare إن وُجد، ونوع الجهاز من المتصفح</li>
+          <li>رابط مختصر للموقع: <code className="text-gold-400">yoursite.com/r/ahmed</code></li>
+          <li>رابط مختصر لمشروع: <code className="text-gold-400">yoursite.com/r/ahmed/7</code></li>
+          <li>الدولة تُحدَّد تلقائياً من IP الزائر (Cloudflare أو تحديد جغرافي)</li>
+          <li>نوع الجهاز: جوال / تابلت / كمبيوتر</li>
         </ul>
       </div>
     </div>

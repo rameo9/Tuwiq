@@ -63,8 +63,18 @@ export function countryLabel(code: string, lang: 'ar' | 'en' = 'ar'): string {
 
 export function buildMarketerUrl(origin: string, slug: string, path = '/'): string {
   const base = origin.replace(/\/$/, '');
-  const cleanPath = path.startsWith('/') ? path : `/${path}`;
-  const url = new URL(cleanPath, `${base}/`);
-  url.searchParams.set('ref', slug);
-  return url.toString();
+  const clean = normalizeMarketerSlug(slug);
+  const projectMatch = path.match(/^\/projects\/(\d+)/);
+  if (projectMatch) {
+    return `${base}/r/${clean}/${projectMatch[1]}`;
+  }
+  return `${base}/r/${clean}`;
+}
+
+export function buildMarketerHomeUrl(origin: string, slug: string): string {
+  return `${origin.replace(/\/$/, '')}/r/${normalizeMarketerSlug(slug)}`;
+}
+
+export function buildMarketerProjectUrl(origin: string, slug: string, projectId: number): string {
+  return `${origin.replace(/\/$/, '')}/r/${normalizeMarketerSlug(slug)}/${projectId}`;
 }
