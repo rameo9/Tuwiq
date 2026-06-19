@@ -5,7 +5,7 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Heart, ArrowUp, Send, Sparkles } from 'lucide-react';
-import Link from 'next/link';
+import SiteLogo from '@/components/ui/SiteLogo';
 import type { LandingPayload, SitePayload } from '@/lib/cms-read';
 import { getSocialHref, getSocialIcon } from '@/lib/social';
 
@@ -132,26 +132,14 @@ export default function Footer({
             transition={{ duration: 0.8 }}
             className="lg:col-span-1"
           >
-            <Link href="/" className="inline-flex items-center gap-3 mb-6 group">
-              <motion.div 
-                className="w-16 h-16 rounded-2xl bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center shadow-lg shadow-gold-500/30"
-                whileHover={{ rotate: [0, -5, 5, 0], scale: 1.1 }}
-                transition={{ duration: 0.5 }}
-              >
-                <span className="text-dark-900 font-bold text-3xl">ص</span>
-              </motion.div>
-              <div>
-                <motion.h3 
-                  className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-gold-400 to-gold-600"
-                  whileHover={{ scale: 1.05 }}
-                >
-                  {site.siteName[language]}
-                </motion.h3>
-                <p className="text-xs text-slate-600 dark:text-dark-400">
-                  {language === 'ar' ? 'للتطوير العقاري' : 'Real Estate'}
-                </p>
-              </div>
-            </Link>
+            <motion.div className="mb-6" whileHover={{ scale: 1.03 }}>
+              <SiteLogo
+                logo={site.logo}
+                siteName={site.siteName}
+                language={language}
+                imageClassName="h-12 sm:h-14 w-auto object-contain"
+              />
+            </motion.div>
             <p className="text-slate-600 dark:text-dark-400 mb-6 leading-relaxed">
               {footer.companyBlurb[language]}
             </p>
