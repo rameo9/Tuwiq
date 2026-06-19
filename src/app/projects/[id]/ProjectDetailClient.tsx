@@ -31,6 +31,7 @@ import Link from 'next/link';
 import type { LandingPayload, SitePayload } from '@/lib/cms-read';
 import type { SerializedProject } from '@/types/project-detail';
 import LocationMap from '@/components/LocationMap';
+import { shareProjectLink } from '@/lib/share-project';
 
 function buildProjectImageUrls(mainImageUrl: string, rows: { url: string }[]): string[] {
   const out: string[] = [];
@@ -105,25 +106,15 @@ export default function ProjectDetailClient({
   const handleShare = async () => {
     const url = window.location.href;
     const title = viewModel.title[language];
+    const text = `${title} — ${viewModel.location[language]}`;
+    const mainImage = project.mainImageUrl || viewModel.images[0] || '';
 
-    if (typeof navigator.share === 'function') {
-      try {
-        await navigator.share({ title, text: title, url });
-        return;
-      } catch (e) {
-        if (e instanceof Error && e.name === 'AbortError') return;
-      }
-    }
+    const result = await shareProjectLink({ title, text, url }, mainImage);
 
-    try {
-      await navigator.clipboard.writeText(url);
+    if (result === 'copied') {
       setShareNotice(language === 'ar' ? 'تم نسخ الرابط' : 'Link copied');
-    } catch {
-      window.prompt(language === 'ar' ? 'انسخ الرابط:' : 'Copy link:', url);
-      return;
+      window.setTimeout(() => setShareNotice(''), 2500);
     }
-
-    window.setTimeout(() => setShareNotice(''), 2500);
   };
 
   const navigateImage = (dir: 'prev' | 'next') => {
