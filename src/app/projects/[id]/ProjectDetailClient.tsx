@@ -568,6 +568,11 @@ export default function ProjectDetailClient({
                     language === 'ar' ? 'فتح في Google Maps' : 'Open in Google Maps'
                   }
                   loadingLabel={language === 'ar' ? 'جاري تحميل الخريطة' : 'Loading map'}
+                  mapPromptLabel={
+                    language === 'ar'
+                      ? 'اضغط أدناه لفتح الموقع على الخريطة'
+                      : 'Tap below to open this location in Google Maps'
+                  }
                 />
               </motion.div>
             </div>

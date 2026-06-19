@@ -24,11 +24,42 @@ export function getGoogleMapsEmbedUrl(input: string | undefined | null): string 
       const coordQ = q.match(/^(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)$/);
       if (coordQ) return embedFromCoords(coordQ[1], coordQ[2]);
     }
+
+    const placeMatch = url.pathname.match(/\/maps\/place\//);
+    if (placeMatch) {
+      const pinInPath = raw.match(/!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/);
+      if (pinInPath) return embedFromCoords(pinInPath[1], pinInPath[2]);
+      const atInRaw = raw.match(/@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/);
+      if (atInRaw) return embedFromCoords(atInRaw[1], atInRaw[2]);
+    }
   } catch {
     /* plain text — not a precise embed source */
   }
 
   return null;
+}
+
+export function isShortGoogleMapsUrl(input: string | undefined | null): boolean {
+  const raw = String(input ?? '').trim();
+  if (!raw) return false;
+  return /^(https?:\/\/)?(maps\.app\.goo\.gl|goo\.gl\/maps)/i.test(raw);
+}
+
+export function isGoogleMapsLink(input: string | undefined | null): boolean {
+  const raw = String(input ?? '').trim();
+  if (!raw) return false;
+  if (isShortGoogleMapsUrl(raw)) return true;
+  try {
+    const url = new URL(raw.startsWith('http') ? raw : `https://${raw}`);
+    const host = url.hostname.toLowerCase();
+    return host.includes('google.') && (raw.includes('/maps') || url.searchParams.has('q'));
+  } catch {
+    return false;
+  }
+}
+
+export function looksLikeHttpUrl(input: string | undefined | null): boolean {
+  return /^https?:\/\//i.test(String(input ?? '').trim());
 }
 
 /** @deprecated Use getGoogleMapsEmbedUrl; kept for callers that geocode plain text separately. */
@@ -41,13 +72,13 @@ export function toGoogleMapsOpenUrl(input: string | undefined | null): string | 
   const raw = String(input ?? '').trim();
   if (!raw) return null;
 
-  if (raw.startsWith('http://') || raw.startsWith('https://')) {
+  if (looksLikeHttpUrl(raw)) {
     if (/google\.com\/maps\/embed/i.test(raw)) {
       const embed = getGoogleMapsEmbedUrl(raw);
       const q = embed?.match(/[?&]q=([^&]+)/)?.[1];
       if (q) return `https://www.google.com/maps/search/?api=1&query=${q}`;
     }
-    if (/google\.com\/maps/i.test(raw) || /maps\.google/i.test(raw)) return raw;
+    if (isGoogleMapsLink(raw)) return raw.startsWith('http') ? raw : `https://${raw}`;
   }
 
   const coords = raw.match(/^(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)$/);
