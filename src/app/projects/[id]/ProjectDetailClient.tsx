@@ -31,6 +31,8 @@ import type { LandingPayload, SitePayload } from '@/lib/cms-read';
 import type { SerializedProject } from '@/types/project-detail';
 import LocationMap from '@/components/LocationMap';
 import { shareProjectLink, shareSubtitleFromLocation } from '@/lib/share-project';
+import { ensureShareMetaTags, toAbsoluteClientUrl } from '@/lib/ensure-share-meta';
+import { normalizeMediaUrl } from '@/lib/normalize-media-url';
 
 function buildProjectImageUrls(mainImageUrl: string, rows: { url: string }[]): string[] {
   const out: string[] = [];
@@ -106,12 +108,29 @@ export default function ProjectDetailClient({
     };
   }, [project]);
 
+  useEffect(() => {
+    const origin = window.location.origin;
+    const pageUrl = `${origin}/projects/${project.id}`;
+    const imageUrl = toAbsoluteClientUrl(normalizeMediaUrl(project.mainImageUrl), origin);
+    const title = viewModel.title[language];
+    const description =
+      viewModel.description[language].trim() ||
+      viewModel.title[language];
+
+    ensureShareMetaTags({ title, description, url: pageUrl, imageUrl });
+  }, [project.id, project.mainImageUrl, language, viewModel.title, viewModel.description]);
+
   const handleShare = async () => {
     const url = window.location.href;
     const title = viewModel.title[language];
     const text = viewModel.location[language];
+    const description = viewModel.description[language].trim() || title;
+    const imageUrl = toAbsoluteClientUrl(
+      normalizeMediaUrl(project.mainImageUrl),
+      window.location.origin,
+    );
 
-    const result = await shareProjectLink({ title, text, url });
+    const result = await shareProjectLink({ title, text, url, description, imageUrl });
 
     if (result === 'copied') {
       setShareNotice(language === 'ar' ? 'تم نسخ الرابط' : 'Link copied');

@@ -79,8 +79,6 @@ export async function generateMetadata({
               {
                 url: imageUrl,
                 secureUrl: imageUrl.startsWith('https://') ? imageUrl : undefined,
-                width: 1200,
-                height: 630,
                 alt: project.titleAr,
                 ...(imageType ? { type: imageType } : {}),
               },
