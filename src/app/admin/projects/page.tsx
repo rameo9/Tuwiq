@@ -34,6 +34,7 @@ type ApiProject = {
   mainImageUrl: string;
   pdfUrl: string | null;
   completionYear: string;
+  mapUrl: string | null;
   images: { url: string }[];
   features: { textAr: string; textEn: string }[];
 };
@@ -49,6 +50,7 @@ type UiProject = {
   category: { ar: string; en: string };
   completionYear: string;
   image: string;
+  mapUrl: string;
   galleryUrlsText: string;
   features: { ar: string; en: string }[];
   pdfUrl: string;
@@ -67,6 +69,7 @@ function mapApiToUi(p: ApiProject): UiProject {
     category: { ar: p.categoryAr, en: p.categoryEn },
     completionYear: p.completionYear || '',
     image: p.mainImageUrl,
+    mapUrl: p.mapUrl || '',
     galleryUrlsText: extras.join('\n'),
     features: p.features.map((f) => ({ ar: f.textAr, en: f.textEn })),
     pdfUrl: p.pdfUrl || '',
@@ -84,6 +87,7 @@ function emptyForm() {
     category: { ar: 'سكني', en: 'Residential' },
     completionYear: '',
     image: '',
+    mapUrl: '',
     galleryUrlsText: '',
     features: [] as { ar: string; en: string }[],
     pdfUrl: '',
@@ -141,6 +145,7 @@ export default function AdminProjects() {
         category: { ...project.category },
         completionYear: project.completionYear,
         image: project.image,
+        mapUrl: project.mapUrl,
         galleryUrlsText: project.galleryUrlsText,
         features: project.features.map((f) => ({ ...f })),
         pdfUrl: project.pdfUrl,
@@ -179,6 +184,7 @@ export default function AdminProjects() {
       features: formData.features,
       pdfUrl: formData.pdfUrl.trim() || null,
       completionYear: formData.completionYear.trim(),
+      mapUrl: formData.mapUrl.trim() || null,
     };
   };
 
@@ -438,6 +444,24 @@ export default function AdminProjects() {
                     }
                     className="w-full px-4 py-3 bg-dark-800 border border-dark-700 rounded-xl text-white focus:outline-none focus:border-gold-500/50"
                   />
+                </div>
+
+                <div>
+                  <label className="block text-dark-300 text-sm font-medium mb-2">
+                    رابط Google Maps (اختياري)
+                  </label>
+                  <input
+                    type="url"
+                    value={formData.mapUrl}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, mapUrl: e.target.value }))
+                    }
+                    placeholder="رابط مشاركة أو تضمين من Google Maps"
+                    className="w-full px-4 py-3 bg-dark-800 border border-dark-700 rounded-xl text-white focus:outline-none focus:border-gold-500/50"
+                  />
+                  <p className="text-dark-500 text-xs mt-1">
+                    للدقة الأفضل: من Google Maps → مشاركة → تضمين خريطة، أو الصق رابط المكان.
+                  </p>
                 </div>
 
                 <div>

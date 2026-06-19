@@ -30,7 +30,7 @@ import {
 import Link from 'next/link';
 import type { LandingPayload, SitePayload } from '@/lib/cms-read';
 import type { SerializedProject } from '@/types/project-detail';
-import { toGoogleMapsEmbedUrl } from '@/lib/google-maps';
+import LocationMap from '@/components/LocationMap';
 
 function buildProjectImageUrls(mainImageUrl: string, rows: { url: string }[]): string[] {
   const out: string[] = [];
@@ -67,6 +67,7 @@ export default function ProjectDetailClient({
   const [currentImage, setCurrentImage] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
+  const [shareNotice, setShareNotice] = useState('');
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const heroRef = useRef<HTMLElement>(null);
 
@@ -101,10 +102,29 @@ export default function ProjectDetailClient({
     };
   }, [project]);
 
-  const projectMapEmbedUrl = useMemo(
-    () => toGoogleMapsEmbedUrl(viewModel.location[language]),
-    [viewModel.location, language],
-  );
+  const handleShare = async () => {
+    const url = window.location.href;
+    const title = viewModel.title[language];
+
+    if (typeof navigator.share === 'function') {
+      try {
+        await navigator.share({ title, text: title, url });
+        return;
+      } catch (e) {
+        if (e instanceof Error && e.name === 'AbortError') return;
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(url);
+      setShareNotice(language === 'ar' ? 'تم نسخ الرابط' : 'Link copied');
+    } catch {
+      window.prompt(language === 'ar' ? 'انسخ الرابط:' : 'Copy link:', url);
+      return;
+    }
+
+    window.setTimeout(() => setShareNotice(''), 2500);
+  };
 
   const navigateImage = (dir: 'prev' | 'next') => {
     const len = viewModel.images.length;
@@ -412,11 +432,18 @@ export default function ProjectDetailClient({
                         </motion.button>
                         <motion.button
                           type="button"
-                          className="p-3 sm:p-4 rounded-xl glass text-dark-400 hover:text-gold-400 transition-colors"
+                          onClick={() => void handleShare()}
+                          className="p-3 sm:p-4 rounded-xl glass text-dark-400 hover:text-gold-400 transition-colors relative"
                           whileHover={{ scale: 1.1, rotate: 15 }}
                           whileTap={{ scale: 0.9 }}
+                          aria-label={language === 'ar' ? 'مشاركة المشروع' : 'Share project'}
                         >
                           <Share2 className="w-6 h-6" />
+                          {shareNotice ? (
+                            <span className="absolute -bottom-9 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs px-2 py-1 rounded-lg bg-dark-900 text-gold-400 border border-gold-500/30">
+                              {shareNotice}
+                            </span>
+                          ) : null}
                         </motion.button>
                       </div>
                     </div>
@@ -525,7 +552,6 @@ export default function ProjectDetailClient({
               </motion.div>
 
               {/* Location Map */}
-              {projectMapEmbedUrl ? (
               <motion.div
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -535,20 +561,15 @@ export default function ProjectDetailClient({
                 <h2 className="text-2xl font-bold text-white mb-6">
                   {language === 'ar' ? 'موقع المشروع' : 'Project Location'}
                 </h2>
-                <div className="rounded-2xl overflow-hidden aspect-video">
-                  <iframe
-                    src={projectMapEmbedUrl}
-                    width="100%"
-                    height="100%"
-                    style={{ border: 0 }}
-                    allowFullScreen
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    className="grayscale hover:grayscale-0 transition-all duration-500"
-                  />
-                </div>
+                <LocationMap
+                  mapUrl={project.mapUrl ?? site.mapUrl}
+                  query={viewModel.location[language]}
+                  openLabel={
+                    language === 'ar' ? 'فتح في Google Maps' : 'Open in Google Maps'
+                  }
+                  loadingLabel={language === 'ar' ? 'جاري تحميل الخريطة' : 'Loading map'}
+                />
               </motion.div>
-              ) : null}
             </div>
 
             {/* Sidebar */}

@@ -101,6 +101,12 @@ export async function PATCH(
       body.completionYear !== undefined
         ? String(body.completionYear ?? '').trim()
         : existing.completionYear;
+    const mapUrl =
+      body.mapUrl !== undefined
+        ? body.mapUrl
+          ? String(body.mapUrl).trim()
+          : null
+        : existing.mapUrl;
 
     let imagesArg:
       | { deleteMany: Record<string, never>; create: { url: string; sortOrder: number }[] }
@@ -154,6 +160,7 @@ export async function PATCH(
         mainImageUrl,
         pdfUrl,
         completionYear,
+        mapUrl,
         ...(imagesArg && { images: imagesArg }),
         ...(featuresArg && { features: featuresArg }),
       },

@@ -15,9 +15,9 @@ import {
   MessageCircle
 } from 'lucide-react';
 import Card3D from '@/components/ui/Card3D';
+import LocationMap from '@/components/LocationMap';
 import type { SitePayload } from '@/lib/cms-read';
 import { getSocialHref, getSocialIcon } from '@/lib/social';
-import { toGoogleMapsEmbedUrl } from '@/lib/google-maps';
 
 export default function ContactSection({
   site,
@@ -46,10 +46,6 @@ export default function ContactSection({
     { icon: Mail, key: 'email', value: { ar: site.email, en: site.email } },
     { icon: Clock, key: 'hours', value: site.workingHours },
   ];
-
-  const mapEmbedUrl =
-    toGoogleMapsEmbedUrl(site.mapUrl) ??
-    toGoogleMapsEmbedUrl(site.address[language]);
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -529,45 +525,25 @@ export default function ContactSection({
               </div>
             </motion.div>
 
-            {/* Map with Overlay Animation */}
-            {mapEmbedUrl ? (
+            {/* Map */}
             <motion.div
               initial={{ opacity: 0, y: 30, scale: 0.95 }}
               whileInView={{ opacity: 1, y: 0, scale: 1 }}
               viewport={{ once: true }}
               transition={{ delay: 0.5 }}
-              whileHover={{ scale: 1.02 }}
-              className="relative rounded-2xl overflow-hidden aspect-video border border-slate-200/80 dark:border-white/10"
             >
-              <iframe
-                src={mapEmbedUrl}
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                className="grayscale hover:grayscale-0 transition-all duration-500"
+              <LocationMap
+                mapUrl={site.mapUrl}
+                query={site.address[language]}
+                openLabel={
+                  language === 'ar' ? 'فتح في Google Maps' : 'Open in Google Maps'
+                }
+                loadingLabel={
+                  language === 'ar' ? 'جاري تحميل الخريطة' : 'Loading map'
+                }
+                className="relative rounded-2xl overflow-hidden aspect-video border border-slate-200/80 dark:border-white/10"
               />
-              <motion.div 
-                className="absolute inset-0 bg-gradient-to-t from-slate-100/90 via-transparent to-transparent pointer-events-none dark:from-dark-950"
-                initial={{ opacity: 1 }}
-                whileHover={{ opacity: 0.5 }}
-              />
-              
-              {/* Map Pin Animation */}
-              <motion.div
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full pointer-events-none"
-                animate={{ y: [0, -10, 0] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                <div className="w-8 h-8 bg-gradient-to-br from-gold-500 to-gold-600 rounded-full flex items-center justify-center shadow-lg shadow-gold-500/50">
-                  <MapPin className="w-4 h-4 text-dark-900" />
-                </div>
-                <div className="w-2 h-2 bg-gold-500 rounded-full mx-auto -mt-1" />
-              </motion.div>
             </motion.div>
-            ) : null}
           </motion.div>
         </div>
       </div>

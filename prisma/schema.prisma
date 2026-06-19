@@ -30,6 +30,7 @@ model Project {
   mainImageUrl  String
   pdfUrl          String?
   completionYear  String            @default("")
+  mapUrl          String?
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
   images        ProjectImage[]

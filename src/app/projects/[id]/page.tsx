@@ -51,6 +51,7 @@ export default async function ProjectDetailPage({
     mainImageUrl: project.mainImageUrl,
     pdfUrl: project.pdfUrl,
     completionYear: project.completionYear,
+    mapUrl: project.mapUrl,
     images: project.images.map(({ url, sortOrder }) => ({ url, sortOrder })),
     features: project.features.map(({ textAr, textEn, sortOrder }) => ({
       textAr,

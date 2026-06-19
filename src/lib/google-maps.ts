@@ -1,5 +1,5 @@
-/** Converts share / place / embed Google Maps URLs to an iframe embed src. */
-export function toGoogleMapsEmbedUrl(input: string | undefined | null): string | null {
+/** Google Maps embed for pb / coords / embed URLs only (not plain address text). */
+export function getGoogleMapsEmbedUrl(input: string | undefined | null): string | null {
   const raw = String(input ?? '').trim();
   if (!raw) return null;
 
@@ -23,19 +23,17 @@ export function toGoogleMapsEmbedUrl(input: string | undefined | null): string |
     if (q) {
       const coordQ = q.match(/^(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)$/);
       if (coordQ) return embedFromCoords(coordQ[1], coordQ[2]);
-      return embedFromQuery(q);
-    }
-
-    const placeMatch = url.pathname.match(/\/maps\/place\/([^/@?]+)/);
-    if (placeMatch) {
-      const label = decodeURIComponent(placeMatch[1].replace(/\+/g, ' '));
-      return embedFromQuery(label);
     }
   } catch {
-    /* not a valid URL — treat as plain address below */
+    /* plain text — not a precise embed source */
   }
 
-  return embedFromQuery(raw);
+  return null;
+}
+
+/** @deprecated Use getGoogleMapsEmbedUrl; kept for callers that geocode plain text separately. */
+export function toGoogleMapsEmbedUrl(input: string | undefined | null): string | null {
+  return getGoogleMapsEmbedUrl(input);
 }
 
 /** Opens the location in Google Maps (new tab). */
@@ -45,12 +43,11 @@ export function toGoogleMapsOpenUrl(input: string | undefined | null): string | 
 
   if (raw.startsWith('http://') || raw.startsWith('https://')) {
     if (/google\.com\/maps\/embed/i.test(raw)) {
-      const embed = toGoogleMapsEmbedUrl(raw);
-      if (!embed) return null;
-      const q = embed.match(/[?&]q=([^&]+)/)?.[1];
+      const embed = getGoogleMapsEmbedUrl(raw);
+      const q = embed?.match(/[?&]q=([^&]+)/)?.[1];
       if (q) return `https://www.google.com/maps/search/?api=1&query=${q}`;
     }
-    return raw;
+    if (/google\.com\/maps/i.test(raw) || /maps\.google/i.test(raw)) return raw;
   }
 
   const coords = raw.match(/^(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)$/);
@@ -61,10 +58,12 @@ export function toGoogleMapsOpenUrl(input: string | undefined | null): string | 
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(raw)}`;
 }
 
-function embedFromCoords(lat: string, lng: string) {
-  return `https://www.google.com/maps?q=${lat},${lng}&hl=ar&z=15&output=embed`;
+export function toOpenStreetMapEmbedUrl(lat: number, lon: number): string {
+  const d = 0.015;
+  const bbox = `${lon - d},${lat - d},${lon + d},${lat + d}`;
+  return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat}%2C${lon}`;
 }
 
-function embedFromQuery(query: string) {
-  return `https://www.google.com/maps?q=${encodeURIComponent(query)}&hl=ar&z=15&output=embed`;
+function embedFromCoords(lat: string, lng: string) {
+  return `https://www.google.com/maps?q=${lat},${lng}&hl=ar&z=15&output=embed`;
 }

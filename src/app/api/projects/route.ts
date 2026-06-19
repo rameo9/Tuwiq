@@ -62,6 +62,7 @@ export async function POST(req: NextRequest) {
     const mainImageUrl = String(body.mainImageUrl ?? body.image ?? '').trim();
     const pdfUrl = body.pdfUrl ? String(body.pdfUrl).trim() : null;
     const completionYear = String(body.completionYear ?? '').trim();
+    const mapUrl = body.mapUrl ? String(body.mapUrl).trim() : null;
 
     if (!titleAr || !titleEn || !mainImageUrl) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -87,6 +88,7 @@ export async function POST(req: NextRequest) {
         mainImageUrl,
         pdfUrl: pdfUrl || null,
         completionYear,
+        mapUrl: mapUrl || null,
         images: {
           create: imgs.map(({ url, sortOrder }) => ({ url, sortOrder })),
         },

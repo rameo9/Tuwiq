@@ -14,6 +14,7 @@ export type SerializedProject = {
   mainImageUrl: string;
   pdfUrl: string | null;
   completionYear: string;
+  mapUrl: string | null;
   images: { url: string; sortOrder: number }[];
   features: { textAr: string; textEn: string; sortOrder: number }[];
 };
