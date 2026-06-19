@@ -363,14 +363,22 @@ export default function ContactSection({
                     <motion.button
                       type="submit"
                       disabled={isSubmitting}
-                      className="relative w-full py-5 bg-gradient-to-r from-gold-500 to-gold-600 rounded-xl text-dark-900 font-bold text-lg flex items-center justify-center gap-3 group disabled:opacity-50 overflow-hidden"
+                      className={`relative w-full py-5 rounded-xl text-dark-900 font-bold text-lg flex items-center justify-center gap-3 group disabled:opacity-50 overflow-hidden ${
+                        direction === 'rtl'
+                          ? 'bg-gradient-to-l from-gold-500 to-gold-600'
+                          : 'bg-gradient-to-r from-gold-500 to-gold-600'
+                      }`}
                       whileHover={{ scale: 1.02, boxShadow: '0 20px 40px rgba(212, 175, 55, 0.3)' }}
                       whileTap={{ scale: 0.98 }}
                     >
                       {/* Shine Effect */}
                       <motion.div
-                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
-                        animate={{ x: ['-100%', '100%'] }}
+                        className={`absolute inset-0 from-transparent via-white/30 to-transparent ${
+                          direction === 'rtl' ? 'bg-gradient-to-l' : 'bg-gradient-to-r'
+                        }`}
+                        animate={{
+                          x: direction === 'rtl' ? ['100%', '-100%'] : ['-100%', '100%'],
+                        }}
                         transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
                       />
                       
@@ -402,15 +410,23 @@ export default function ContactSection({
             </Card3D>
 
             {/* Decorative Corners */}
-            <motion.div 
-              className={`absolute -top-4 ${direction === 'rtl' ? '-right-4' : '-left-4'} w-24 h-24 border-t-2 border-l-2 border-gold-500/30 rounded-tl-3xl`}
+            <motion.div
+              className={`absolute -top-4 w-24 h-24 border-t-2 border-gold-500/30 ${
+                direction === 'rtl'
+                  ? '-right-4 border-r-2 rounded-tr-3xl'
+                  : '-left-4 border-l-2 rounded-tl-3xl'
+              }`}
               initial={{ scale: 0, opacity: 0 }}
               whileInView={{ scale: 1, opacity: 1 }}
               viewport={{ once: true }}
               transition={{ delay: 0.5 }}
             />
-            <motion.div 
-              className={`absolute -bottom-4 ${direction === 'rtl' ? '-left-4' : '-right-4'} w-24 h-24 border-b-2 border-r-2 border-gold-500/30 rounded-br-3xl`}
+            <motion.div
+              className={`absolute -bottom-4 w-24 h-24 border-b-2 border-gold-500/30 ${
+                direction === 'rtl'
+                  ? '-left-4 border-l-2 rounded-bl-3xl'
+                  : '-right-4 border-r-2 rounded-br-3xl'
+              }`}
               initial={{ scale: 0, opacity: 0 }}
               whileInView={{ scale: 1, opacity: 1 }}
               viewport={{ once: true }}

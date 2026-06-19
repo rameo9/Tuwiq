@@ -13,6 +13,7 @@ import GallerySection from '@/components/sections/GallerySection';
 import ServicesSection from '@/components/sections/ServicesSection';
 import ContactSection from '@/components/sections/ContactSection';
 import Footer from '@/components/sections/Footer';
+import { useLanguage } from '@/contexts/LanguageContext';
 import type { LandingPayload, SitePayload } from '@/lib/cms-read';
 
 export type HomeClientProps = {
@@ -52,6 +53,7 @@ export type HomeClientProps = {
 };
 
 export default function HomeClient(props: HomeClientProps) {
+  const { direction } = useLanguage();
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 100,
@@ -130,7 +132,9 @@ export default function HomeClient(props: HomeClientProps) {
         href={`https://wa.me/${wa}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-8 left-8 z-50 p-4 bg-green-500 rounded-full shadow-lg shadow-green-500/30"
+        className={`fixed bottom-8 z-50 p-4 bg-green-500 rounded-full shadow-lg shadow-green-500/30 ${
+          direction === 'rtl' ? 'right-8' : 'left-8'
+        }`}
         initial={{ scale: 0, rotate: -180 }}
         animate={{ scale: 1, rotate: 0 }}
         transition={{ delay: 2, type: 'spring' }}

@@ -14,8 +14,17 @@ export type SocialIconComponent = LucideIcon | React.FC<{ className?: string }>;
 
 export function SnapchatIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-      <path d="M18.3 5.7c-.2-.9-1.1-1.6-2-1.7-1.4-.2-3-.4-6.3-.4s-4.9.2-6.3.4c-.9.1-1.8.8-2 1.7-.4 1.9-.4 4.3-.4 6.3s0 4.4.4 6.3c.2.9 1.1 1.6 2 1.7 1.2.2 3.2.4 5.4.4.4 0 .9 1.1.9 2.1 0 1-.5 2.2-2.7 2.4-.6.1-1.1.5-1 1.1.1.4.5.8 1.3.8 1.7 0 4.2-1 5.5-2.9 1.3 1.9 3.8 2.9 5.5 2.9.8 0 1.2-.4 1.3-.8.1-.6-.4-1-1-1.1-2.2-.2-2.7-1.4-2.7-2.4 0-1 .5-2.1.9-2.1 2.2 0 4.2-.2 5.4-.4.9-.1 1.8-.8 2-1.7.4-1.9.4-4.3.4-6.3s0-4.4-.4-6.3z" />
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M16.882 7.842a4.882 4.882 0 0 0-9.764 0c0 4.273-.213 6.409-4.118 8.118 2 .882 2 .882 3 3 3 0 4 2 6 2s3-2 6-2c1-2.118 1-2.118 3-3-3.906-1.709-4.118-3.845-4.118-8.118m-13.882 8.119c4-2.118 4-4.118 1-7.118m17 7.118c-4-2.118-4-4.118-1-7.118" />
     </svg>
   );
 }

@@ -360,7 +360,11 @@ export default function ProjectsSection({ cmsProjects }: { cmsProjects: CmsProje
 
                       {/* Corner Accents */}
                       <motion.div
-                        className="absolute top-0 left-0 w-24 h-24 border-t-2 border-l-2 border-gold-500 rounded-tl-3xl"
+                        className={`absolute top-0 w-24 h-24 border-t-2 border-gold-500 ${
+                          direction === 'rtl'
+                            ? 'right-0 border-r-2 rounded-tr-3xl'
+                            : 'left-0 border-l-2 rounded-tl-3xl'
+                        }`}
                         initial={{ scale: 0, opacity: 0 }}
                         animate={{
                           scale: hoveredProject === project.id ? 1 : 0,
@@ -369,7 +373,11 @@ export default function ProjectsSection({ cmsProjects }: { cmsProjects: CmsProje
                         transition={{ duration: 0.3 }}
                       />
                       <motion.div
-                        className="absolute bottom-0 right-0 w-24 h-24 border-b-2 border-r-2 border-gold-500 rounded-br-3xl"
+                        className={`absolute bottom-0 w-24 h-24 border-b-2 border-gold-500 ${
+                          direction === 'rtl'
+                            ? 'left-0 border-l-2 rounded-bl-3xl'
+                            : 'right-0 border-r-2 rounded-br-3xl'
+                        }`}
                         initial={{ scale: 0, opacity: 0 }}
                         animate={{
                           scale: hoveredProject === project.id ? 1 : 0,
