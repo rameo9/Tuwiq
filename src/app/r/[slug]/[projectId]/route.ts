@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { redirectUrlForRequest } from '@/lib/absolute-url';
 import { recordMarketerClick } from '@/lib/marketer-track';
 
 export async function GET(
@@ -8,7 +9,7 @@ export async function GET(
 ) {
   const projectId = Number(params.projectId);
   if (!Number.isFinite(projectId)) {
-    return NextResponse.redirect(new URL('/', req.url), 302);
+    return NextResponse.redirect(redirectUrlForRequest(req, '/'), 302);
   }
 
   const project = await prisma.project.findUnique({ where: { id: projectId } });
@@ -21,6 +22,8 @@ export async function GET(
     projectId,
   });
 
-  const dest = new URL(project ? path : '/', req.url);
-  return NextResponse.redirect(dest, 302);
+  return NextResponse.redirect(
+    redirectUrlForRequest(req, project ? path : '/'),
+    302,
+  );
 }

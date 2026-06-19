@@ -33,6 +33,41 @@ export function getRequestOrigin(): string {
   return getSiteOrigin();
 }
 
+export function getOriginFromRequest(req: { headers: Headers; url?: string }): string {
+  const h = req.headers;
+  const host =
+    h.get('x-forwarded-host')?.split(',')[0]?.trim() || h.get('host')?.trim();
+
+  const isInternal =
+    !host ||
+    /^localhost(:\d+)?$/i.test(host) ||
+    /^127\.0\.0\.1(:\d+)?$/i.test(host) ||
+    host.startsWith('0.0.0.0');
+
+  if (!isInternal) {
+    const proto = h.get('x-forwarded-proto')?.split(',')[0]?.trim() || 'https';
+    return `${proto}://${host}`;
+  }
+
+  const fromEnv =
+    process.env.SITE_URL?.trim().replace(/\/$/, '') ||
+    process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/$/, '');
+  if (fromEnv) return fromEnv;
+
+  if (host) {
+    const proto = h.get('x-forwarded-proto')?.split(',')[0]?.trim() || 'http';
+    return `${proto}://${host}`;
+  }
+
+  return getSiteOrigin();
+}
+
+export function redirectUrlForRequest(req: { headers: Headers; url?: string }, path: string): URL {
+  const origin = getOriginFromRequest(req).replace(/\/$/, '');
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  return new URL(cleanPath, `${origin}/`);
+}
+
 export function toAbsoluteUrl(path: string | null | undefined, origin?: string): string {
   const raw = String(path ?? '').trim();
   if (!raw) return '';
