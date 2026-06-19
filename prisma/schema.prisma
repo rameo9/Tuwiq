@@ -108,3 +108,30 @@ model NewsletterSubscriber {
   email     String   @unique
   createdAt DateTime @default(now())
 }
+
+model Marketer {
+  id        Int             @id @default(autoincrement())
+  name      String
+  slug      String          @unique
+  enabled   Boolean         @default(true)
+  notes     String          @default("")
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  clicks    MarketerClick[]
+}
+
+model MarketerClick {
+  id         Int      @id @default(autoincrement())
+  marketerId Int
+  marketer   Marketer @relation(fields: [marketerId], references: [id], onDelete: Cascade)
+  path       String   @default("/")
+  projectId  Int?
+  country    String   @default("Unknown")
+  deviceType String   @default("unknown")
+  userAgent  String   @default("")
+  createdAt  DateTime @default(now())
+
+  @@index([marketerId, createdAt])
+  @@index([marketerId, country])
+  @@index([marketerId, deviceType])
+}

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { LanguageProvider } from '@/contexts/LanguageContext';
+import MarketingTracker from '@/components/MarketingTracker';
 import { prisma } from '@/lib/prisma';
 import { parseSiteFromDb } from '@/lib/cms-merge';
 
@@ -47,6 +48,7 @@ export default function RootLayout({
       <body className="min-h-screen bg-slate-100 text-slate-900 antialiased transition-colors dark:bg-dark-950 dark:text-white">
         <ThemeProvider>
           <LanguageProvider>
+            <MarketingTracker />
             {children}
           </LanguageProvider>
         </ThemeProvider>

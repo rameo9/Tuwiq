@@ -22,7 +22,8 @@ import {
   Home,
   Globe,
   Palette,
-  Link2
+  Link2,
+  Megaphone,
 } from 'lucide-react';
 
 const menuItems = [
@@ -31,6 +32,7 @@ const menuItems = [
   { icon: Building2, label: { ar: 'المشاريع', en: 'Projects' }, href: '/admin/projects' },
   { icon: Image, label: { ar: 'المعرض', en: 'Gallery' }, href: '/admin/gallery' },
   { icon: FileText, label: { ar: 'الخدمات', en: 'Services' }, href: '/admin/services' },
+  { icon: Megaphone, label: { ar: 'التسويق', en: 'Marketing' }, href: '/admin/marketing' },
   { icon: Mail, label: { ar: 'الرسائل', en: 'Messages' }, href: '/admin/messages' },
   { icon: Link2, label: { ar: 'الروابط الاجتماعية', en: 'Social Links' }, href: '/admin/social' },
   { icon: Palette, label: { ar: 'الثيم والألوان', en: 'Theme & Colors' }, href: '/admin/theme' },
