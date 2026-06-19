@@ -4,7 +4,38 @@ import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { getPublicHomeBundle } from '@/lib/cms-read';
 import { toAbsoluteUrl, getRequestOrigin } from '@/lib/absolute-url';
+import { normalizeMediaUrl } from '@/lib/normalize-media-url';
 import type { SerializedProject } from '@/types/project-detail';
+
+function isUrlLike(text: string): boolean {
+  const t = text.trim();
+  return /^https?:\/\//i.test(t) || /maps\.|goo\.gl/i.test(t);
+}
+
+function pickOgDescription(project: {
+  descriptionAr: string;
+  descriptionEn: string;
+  locationAr: string;
+  locationEn: string;
+  titleAr: string;
+}): string {
+  const desc = project.descriptionAr.trim() || project.descriptionEn.trim();
+  if (desc) return desc.slice(0, 300);
+
+  const loc = project.locationAr.trim() || project.locationEn.trim();
+  if (loc && !isUrlLike(loc)) return loc.slice(0, 300);
+
+  return project.titleAr;
+}
+
+function ogImageType(url: string): string | undefined {
+  const lower = url.split('?')[0].toLowerCase();
+  if (lower.endsWith('.png')) return 'image/png';
+  if (lower.endsWith('.webp')) return 'image/webp';
+  if (lower.endsWith('.gif')) return 'image/gif';
+  if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) return 'image/jpeg';
+  return undefined;
+}
 
 export const dynamic = 'force-dynamic';
 
@@ -23,18 +54,16 @@ export async function generateMetadata({
   const project = await prisma.project.findUnique({ where: { id } });
   if (!project) return {};
 
-  const title = `${project.titleAr} | ${project.titleEn}`;
-  const description =
-    project.descriptionAr.trim() ||
-    project.descriptionEn.trim() ||
-    `${project.locationAr} — ${project.locationEn}`;
+  const title = project.titleAr.trim() || project.titleEn.trim();
+  const description = pickOgDescription(project);
   const origin = getRequestOrigin();
   const pageUrl = `${origin}/projects/${id}`;
-  const imageUrl = toAbsoluteUrl(project.mainImageUrl, origin);
+  const imageUrl = toAbsoluteUrl(normalizeMediaUrl(project.mainImageUrl), origin);
+  const imageType = imageUrl ? ogImageType(imageUrl) : undefined;
 
   return {
     metadataBase: new URL(origin),
-    title,
+    title: `${project.titleAr} | ${project.titleEn}`,
     description,
     alternates: { canonical: pageUrl },
     openGraph: {
@@ -53,6 +82,7 @@ export async function generateMetadata({
                 width: 1200,
                 height: 630,
                 alt: project.titleAr,
+                ...(imageType ? { type: imageType } : {}),
               },
             ],
           }

@@ -12,7 +12,6 @@ import {
   Home, 
   Download, 
   Share2, 
-  Heart,
   ChevronLeft,
   ChevronRight,
   X,
@@ -31,7 +30,7 @@ import Link from 'next/link';
 import type { LandingPayload, SitePayload } from '@/lib/cms-read';
 import type { SerializedProject } from '@/types/project-detail';
 import LocationMap from '@/components/LocationMap';
-import { shareProjectLink } from '@/lib/share-project';
+import { shareProjectLink, shareSubtitleFromLocation } from '@/lib/share-project';
 
 function buildProjectImageUrls(mainImageUrl: string, rows: { url: string }[]): string[] {
   const out: string[] = [];
@@ -67,7 +66,6 @@ export default function ProjectDetailClient({
   const { language, direction, t } = useLanguage();
   const [currentImage, setCurrentImage] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-  const [isLiked, setIsLiked] = useState(false);
   const [shareNotice, setShareNotice] = useState('');
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const heroRef = useRef<HTMLElement>(null);
@@ -85,7 +83,10 @@ export default function ProjectDetailClient({
     const images = buildProjectImageUrls(project.mainImageUrl, project.images);
     const title = { ar: project.titleAr, en: project.titleEn };
     const description = { ar: project.descriptionAr, en: project.descriptionEn };
-    const location = { ar: project.locationAr, en: project.locationEn };
+    const location = {
+      ar: shareSubtitleFromLocation(project.locationAr),
+      en: shareSubtitleFromLocation(project.locationEn),
+    };
     const category = { ar: project.categoryAr, en: project.categoryEn };
     const status = { ar: project.status, en: project.status };
     const features = project.features.map((f) => ({ ar: f.textAr, en: f.textEn }));
@@ -406,24 +407,6 @@ export default function ProjectDetailClient({
                       <div className="flex gap-2 sm:gap-3 shrink-0 self-start">
                         <motion.button
                           type="button"
-                          onClick={() => setIsLiked(!isLiked)}
-                          className={`p-3 sm:p-4 rounded-xl transition-all ${
-                            isLiked 
-                              ? 'bg-red-500/20 text-red-500 shadow-lg shadow-red-500/20' 
-                              : 'glass text-dark-400 hover:text-white'
-                          }`}
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                        >
-                          <motion.div
-                            animate={isLiked ? { scale: [1, 1.3, 1] } : {}}
-                            transition={{ duration: 0.3 }}
-                          >
-                            <Heart className={`w-6 h-6 ${isLiked ? 'fill-current' : ''}`} />
-                          </motion.div>
-                        </motion.button>
-                        <motion.button
-                          type="button"
                           onClick={() => void handleShare()}
                           className="p-3 sm:p-4 rounded-xl glass text-dark-400 hover:text-gold-400 transition-colors relative"
                           whileHover={{ scale: 1.1, rotate: 15 }}
@@ -501,7 +484,7 @@ export default function ProjectDetailClient({
                 </Card3D>
               </motion.div>
 
-              {/* Features with Advanced Animations */}
+              {viewModel.features.length > 0 ? (
               <motion.div
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -517,7 +500,9 @@ export default function ProjectDetailClient({
                       {language === 'ar' ? 'مميزات المشروع' : 'Project Features'}
                     </motion.h2>
                     <div className="grid md:grid-cols-2 gap-4">
-                      {viewModel.features.map((feature, index) => (
+                      {viewModel.features
+                        .filter((feature) => feature[language].trim())
+                        .map((feature, index) => (
                         <motion.div
                           key={index}
                           initial={{ opacity: 0, x: direction === 'rtl' ? 50 : -50 }}
@@ -542,6 +527,7 @@ export default function ProjectDetailClient({
                   </div>
                 </Card3D>
               </motion.div>
+              ) : null}
 
               {/* Location Map */}
               <motion.div

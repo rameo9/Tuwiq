@@ -239,26 +239,27 @@ export default function AdminProjects() {
     }
   };
 
-  const addFeature = () => {
-    setFormData((prev) => ({
-      ...prev,
-      features: [...prev.features, { ar: '', en: '' }],
-    }));
+  const syncFeaturesFromLines = (lang: 'ar' | 'en', text: string) => {
+    const lines = text.split('\n');
+    setFormData((prev) => {
+      const maxLen = Math.max(lines.length, prev.features.length, 1);
+      const features = Array.from({ length: maxLen }, (_, i) => ({
+        ar: lang === 'ar' ? lines[i] ?? '' : prev.features[i]?.ar ?? '',
+        en: lang === 'en' ? lines[i] ?? '' : prev.features[i]?.en ?? '',
+      }));
+      while (
+        features.length > 1 &&
+        !features[features.length - 1].ar.trim() &&
+        !features[features.length - 1].en.trim()
+      ) {
+        features.pop();
+      }
+      return { ...prev, features };
+    });
   };
 
-  const updateFeature = (index: number, lang: 'ar' | 'en', value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      features: prev.features.map((f, i) => (i === index ? { ...f, [lang]: value } : f)),
-    }));
-  };
-
-  const removeFeature = (index: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      features: prev.features.filter((_, i) => i !== index),
-    }));
-  };
+  const featuresTextForTab = (lang: 'ar' | 'en') =>
+    formData.features.map((f) => f[lang]).join('\n');
 
   return (
     <div className="space-y-6">
@@ -613,37 +614,25 @@ export default function AdminProjects() {
                 </div>
 
                 <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="text-dark-300 text-sm font-medium">
-                      {activeTab === 'ar' ? 'المميزات' : 'Features'}
-                    </label>
-                    <button
-                      type="button"
-                      onClick={addFeature}
-                      className="text-gold-400 text-sm font-medium hover:text-gold-300"
-                    >
-                      + إضافة
-                    </button>
-                  </div>
-                  <div className="space-y-3">
-                    {formData.features.map((feature, index) => (
-                      <div key={index} className="flex items-center gap-3">
-                        <input
-                          type="text"
-                          value={feature[activeTab]}
-                          onChange={(e) => updateFeature(index, activeTab, e.target.value)}
-                          className="flex-1 px-4 py-2 bg-dark-800 border border-dark-700 rounded-xl text-white"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeFeature(index)}
-                          className="p-2 rounded-lg bg-red-500/20 text-red-500"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
+                  <label className="block text-dark-300 text-sm font-medium mb-2">
+                    {activeTab === 'ar' ? 'مميزات المشروع' : 'Project features'}
+                  </label>
+                  <textarea
+                    rows={5}
+                    value={featuresTextForTab(activeTab)}
+                    onChange={(e) => syncFeaturesFromLines(activeTab, e.target.value)}
+                    placeholder={
+                      activeTab === 'ar'
+                        ? 'اكتب ميزة في كل سطر، مثل:\nموقع استراتيجي\nتشطيبات فاخرة'
+                        : 'One feature per line, e.g.:\nPrime location\nPremium finishes'
+                    }
+                    className="w-full px-4 py-3 bg-dark-800 border border-dark-700 rounded-xl text-white focus:outline-none focus:border-gold-500/50 resize-y min-h-[120px]"
+                  />
+                  <p className="text-dark-500 text-xs mt-1">
+                    {activeTab === 'ar'
+                      ? 'سطر واحد = ميزة واحدة. عدّل العربية والإنجليزية من التبويبين.'
+                      : 'One line = one feature. Edit Arabic and English in each tab.'}
+                  </p>
                 </div>
 
                 <div>
