@@ -9,6 +9,7 @@ import { ChevronDown, Play, ArrowLeft, ArrowRight, Sparkles, X } from 'lucide-re
 import MagneticButton from '@/components/ui/MagneticButton';
 import type { LandingPayload } from '@/lib/cms-read';
 import { parseHeroVideoUrl } from '@/lib/hero-video';
+import { hideSiteStats, useShowStats } from '@/hooks/useShowStats';
 
 function parseStatParts(val: string): { n: number; suffix: string } {
   const s = String(val);
@@ -36,7 +37,7 @@ export default function HeroSection({ hero }: { hero: LandingPayload['hero'] }) 
   const [currentImage, setCurrentImage] = useState(0);
   const [videoOpen, setVideoOpen] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [statsHidden, setStatsHidden] = useState(false);
+  const showStatsBar = useShowStats(hero.showStats);
   const heroRef = useRef<HTMLDivElement>(null);
   const videoSource = parseHeroVideoUrl(hero.videoUrl);
   const { scrollY } = useScroll();
@@ -72,14 +73,6 @@ export default function HeroSection({ hero }: { hero: LandingPayload['hero'] }) 
   const yearsCounter = useCounter(py.n, 2000);
 
   useEffect(() => {
-    try {
-      setStatsHidden(localStorage.getItem('tuwaiq_hero_stats_hidden') === '1');
-    } catch {
-      /* private mode */
-    }
-  }, []);
-
-  useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImage((prev) => (prev + 1) % images.length);
     }, 5000);
@@ -107,16 +100,8 @@ export default function HeroSection({ hero }: { hero: LandingPayload['hero'] }) 
   };
 
   const dismissStats = () => {
-    setStatsHidden(true);
-    try {
-      localStorage.setItem('tuwaiq_hero_stats_hidden', '1');
-    } catch {
-      /* ignore */
-    }
+    hideSiteStats();
   };
-
-  const showStatsBar = hero.showStats !== false && !statsHidden;
-
 
   return (
     <section 

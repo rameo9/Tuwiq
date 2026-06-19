@@ -6,6 +6,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Building2, MessageSquare, Settings, TrendingUp, ArrowRight, ArrowLeft, Sparkles, Star } from 'lucide-react';
 import Card3D from '@/components/ui/Card3D';
+import { useShowStats } from '@/hooks/useShowStats';
 
 const SERVICE_ACCENTS = [
   'from-blue-500 to-blue-600',
@@ -26,11 +27,14 @@ type CmsServiceRow = {
 
 export default function ServicesSection({
   cmsServices,
+  showStats: cmsShowStats,
 }: {
   cmsServices: CmsServiceRow[];
+  showStats?: boolean;
 }) {
   const { t, language, direction } = useLanguage();
   const { colors } = useTheme();
+  const showStatsOverlay = useShowStats(cmsShowStats);
   const [hoveredService, setHoveredService] = useState<string | null>(null);
   const sectionRef = useRef<HTMLElement>(null);
 
@@ -353,6 +357,7 @@ export default function ServicesSection({
               />
 
               {/* Floating Stats Card */}
+              {showStatsOverlay ? (
               <motion.div
                 className="absolute bottom-8 left-8 right-8 glass rounded-2xl p-6 border border-gold-500/20"
                 initial={{ y: 100, opacity: 0 }}
@@ -386,6 +391,7 @@ export default function ServicesSection({
                   ))}
                 </div>
               </motion.div>
+              ) : null}
             </motion.div>
 
             {/* Decorative Orbiting Elements */}

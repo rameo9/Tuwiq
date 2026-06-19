@@ -7,6 +7,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { Eye, Target, Heart, Award, Building2, Users, TrendingUp, Zap } from 'lucide-react';
 import Card3D from '@/components/ui/Card3D';
 import type { LandingPayload } from '@/lib/cms-read';
+import { useShowStats } from '@/hooks/useShowStats';
 
 const featureMeta = [
   { icon: Eye, color: 'from-blue-500 to-cyan-500' },
@@ -50,9 +51,16 @@ function AnimatedCounter({ value, suffix = '' }: { value: number; suffix?: strin
   return <span ref={ref}>{count}{suffix}</span>;
 }
 
-export default function AboutSection({ about }: { about: LandingPayload['about'] }) {
+export default function AboutSection({
+  about,
+  showStats: cmsShowStats,
+}: {
+  about: LandingPayload['about'];
+  showStats?: boolean;
+}) {
   const { language, direction } = useLanguage();
   const { colors } = useTheme();
+  const showStatsOverlay = useShowStats(cmsShowStats);
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -261,7 +269,8 @@ export default function AboutSection({ about }: { about: LandingPayload['about']
                   transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
                 />
                 
-                {/* Stats Overlay */}
+                {/* Stats Overlay — يتبع إظهار/إخفاء إحصائيات الهيدر */}
+                {showStatsOverlay ? (
                 <motion.div 
                   className="absolute bottom-0 left-0 right-0 p-8"
                   initial={{ y: 100, opacity: 0 }}
@@ -296,6 +305,7 @@ export default function AboutSection({ about }: { about: LandingPayload['about']
                     </div>
                   </div>
                 </motion.div>
+                ) : null}
               </motion.div>
 
               {/* Floating Decorative Elements */}

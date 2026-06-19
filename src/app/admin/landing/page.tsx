@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
   Save,
@@ -437,7 +438,7 @@ export default function AdminLanding() {
                       }
                       className="rounded border-dark-600 bg-dark-800 text-gold-500 focus:ring-gold-500/40"
                     />
-                    إظهار الإحصائيات في الموقع
+                    إظهار الإحصائيات (الهيدر + من نحن + خدماتنا)
                   </label>
                   <button
                     type="button"
@@ -642,10 +643,15 @@ export default function AdminLanding() {
               className="bg-dark-900 rounded-2xl border border-dark-800 p-6"
             >
               <h2 className="text-lg font-bold text-white mb-6">قسم الخدمات</h2>
-              <p className="text-dark-400">يمكنك تعديل الخدمات من صفحة إدارة الخدمات</p>
-              <button className="mt-4 text-gold-400 font-medium">
+              <p className="text-dark-400">
+                لتغيير صورة كل خدمة: افتح إدارة الخدمات → تعديل → «رفع صورة» ثم احفظ.
+              </p>
+              <Link
+                href="/admin/services"
+                className="mt-4 inline-flex items-center gap-2 text-gold-400 font-medium hover:text-gold-300"
+              >
                 الذهاب لإدارة الخدمات ←
-              </button>
+              </Link>
             </motion.div>
           )}
 

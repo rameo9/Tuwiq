@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Plus,
@@ -64,6 +64,8 @@ export default function AdminServices() {
   const [services, setServices] = useState<UiService[]>([]);
   const [loading, setLoading] = useState(true);
   const [savingId, setSavingId] = useState<number | 'modal' | null>(null);
+  const [imageUploadBusy, setImageUploadBusy] = useState(false);
+  const serviceImageInputRef = useRef<HTMLInputElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingService, setEditingService] = useState<UiService | null>(null);
   const [activeTab, setActiveTab] = useState<'ar' | 'en'>('ar');
@@ -132,6 +134,10 @@ export default function AdminServices() {
       window.alert('عنوان الخدمة بالعربية والإنجليزية مطلوب');
       return;
     }
+    const imageUrl =
+      formData.imageUrl.trim() ||
+      (editingService?.imageUrl ?? '').trim() ||
+      'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&q=80';
     setSavingId('modal');
     try {
       const body = {
@@ -139,7 +145,7 @@ export default function AdminServices() {
         icon: formData.iconId,
         title: formData.title,
         description: formData.description,
-        imageUrl: formData.imageUrl.trim(),
+        imageUrl,
         enabled: formData.enabled,
       };
       if (editingService) {
@@ -366,32 +372,49 @@ export default function AdminServices() {
                 <div>
                   <label className="block text-dark-300 text-sm font-medium mb-2">صورة الخدمة</label>
                   <input
+                    ref={serviceImageInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      e.target.value = '';
+                      if (!file) return;
+                      setImageUploadBusy(true);
+                      try {
+                        const url = await uploadFile(file);
+                        setFormData((prev) => ({ ...prev, imageUrl: url }));
+                      } catch (err) {
+                        window.alert(err instanceof Error ? err.message : 'فشل الرفع');
+                      } finally {
+                        setImageUploadBusy(false);
+                      }
+                    }}
+                  />
+                  {formData.imageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={formData.imageUrl}
+                      alt=""
+                      className="w-full max-h-40 object-cover rounded-xl border border-dark-700 mb-3"
+                    />
+                  ) : null}
+                  <input
                     type="url"
                     value={formData.imageUrl}
                     onChange={(e) => setFormData((prev) => ({ ...prev, imageUrl: e.target.value }))}
-                    placeholder="https://..."
+                    placeholder="https://... أو ارفع صورة أدناه"
                     className="w-full px-4 py-3 bg-dark-800 border border-dark-700 rounded-xl text-white mb-2"
                   />
-                  <label className="flex items-center gap-2 px-4 py-3 border border-dashed border-dark-600 rounded-xl cursor-pointer text-dark-300 hover:border-gold-500/40 text-sm">
+                  <button
+                    type="button"
+                    disabled={imageUploadBusy}
+                    onClick={() => serviceImageInputRef.current?.click()}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-dashed border-dark-600 rounded-xl text-dark-300 hover:border-gold-500/40 hover:text-white text-sm transition-colors disabled:opacity-50"
+                  >
                     <Upload className="w-4 h-4" />
-                    رفع صورة
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={async (e) => {
-                        const file = e.target.files?.[0];
-                        if (!file) return;
-                        try {
-                          const url = await uploadFile(file);
-                          setFormData((prev) => ({ ...prev, imageUrl: url }));
-                        } catch {
-                          window.alert('فشل الرفع');
-                        }
-                        e.target.value = '';
-                      }}
-                    />
-                  </label>
+                    {imageUploadBusy ? 'جاري الرفع...' : 'رفع صورة'}
+                  </button>
                 </div>
 
                 <div className="flex gap-2 p-1 bg-dark-800 rounded-xl w-fit">

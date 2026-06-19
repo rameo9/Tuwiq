@@ -93,7 +93,7 @@ export default function HomeClient(props: HomeClientProps) {
         </motion.div>
       </motion.div>
 
-      <AboutSection about={props.landing.about} />
+      <AboutSection about={props.landing.about} showStats={props.landing.hero.showStats} />
 
       <div className="relative py-20 overflow-hidden">
         <motion.div
@@ -117,7 +117,7 @@ export default function HomeClient(props: HomeClientProps) {
 
       <ProjectsSection cmsProjects={props.projects} />
       <GallerySection cmsGallery={props.gallery} />
-      <ServicesSection cmsServices={props.services} />
+      <ServicesSection cmsServices={props.services} showStats={props.landing.hero.showStats} />
       <ContactSection site={props.site} socialLinks={props.socialLinks} />
       <Footer
         site={props.site}
