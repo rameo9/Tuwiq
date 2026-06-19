@@ -4,7 +4,7 @@ import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { Building2, MessageSquare, Settings, TrendingUp, ArrowRight, ArrowLeft, Sparkles, Star } from 'lucide-react';
+import { Building2, MessageSquare, Settings, TrendingUp, Sparkles, Star } from 'lucide-react';
 import Card3D from '@/components/ui/Card3D';
 import { useShowStats } from '@/hooks/useShowStats';
 
@@ -234,39 +234,17 @@ export default function ServicesSection({
                       {/* Content */}
                       <div className="flex-1">
                         <motion.h3 
-                          className="text-xl font-bold text-slate-900 dark:text-white mb-3"
-                          animate={{
-                            color: activeService === service.key ? '#d4af37' : '#ffffff',
-                          }}
+                          className={`text-xl font-bold mb-3 ${
+                            activeService === service.key
+                              ? 'text-gold-500'
+                              : 'text-slate-900 dark:text-white'
+                          }`}
                         >
                           {language === 'ar' ? service.titleAr : service.titleEn}
                         </motion.h3>
                         <p className="text-slate-600 dark:text-dark-400 leading-relaxed">
                           {language === 'ar' ? service.descriptionAr : service.descriptionEn}
                         </p>
-                        
-                        {/* Learn More Link with Animation */}
-                        <motion.div
-                          className="flex items-center gap-3 mt-5"
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{
-                            opacity: activeService === service.key ? 1 : 0,
-                            y: activeService === service.key ? 0 : 20,
-                          }}
-                          transition={{ duration: 0.3 }}
-                        >
-                          <span className="text-gold-400 font-semibold">{t('common.learnMore')}</span>
-                          <motion.div
-                            animate={{ x: [0, 5, 0] }}
-                            transition={{ duration: 1, repeat: Infinity }}
-                          >
-                            {direction === 'rtl' ? (
-                              <ArrowLeft className="w-5 h-5 text-gold-400" />
-                            ) : (
-                              <ArrowRight className="w-5 h-5 text-gold-400" />
-                            )}
-                          </motion.div>
-                        </motion.div>
 
                         {/* Progress Bar */}
                         <motion.div

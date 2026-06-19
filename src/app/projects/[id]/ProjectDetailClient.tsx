@@ -366,8 +366,12 @@ export default function ProjectDetailClient({
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8 }}
           >
-            <MapPin className="w-5 h-5" />
-            <span>{viewModel.location[language]}</span>
+            {viewModel.location[language] ? (
+              <>
+                <MapPin className="w-5 h-5" />
+                <span>{viewModel.location[language]}</span>
+              </>
+            ) : null}
           </motion.div>
         </motion.div>
       </section>
@@ -397,7 +401,7 @@ export default function ProjectDetailClient({
                 transition={{ duration: 0.8 }}
               >
                 <Card3D intensity={5} className="rounded-3xl">
-                  <div className="glass rounded-3xl p-4 sm:p-8 border border-white/10">
+                  <div className="glass rounded-3xl p-4 sm:p-8 border border-slate-200/80 dark:border-white/10">
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-4 sm:mb-6">
                       <div className="min-w-0 flex-1">
                         <motion.span 
@@ -415,15 +419,16 @@ export default function ProjectDetailClient({
                           {viewModel.status[language]}
                         </motion.span>
                         <motion.h1 
-                          className="text-2xl sm:text-3xl md:text-4xl font-bold text-white break-words"
+                          className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 dark:text-white break-words"
                           initial={{ opacity: 0, x: -30 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: 0.2 }}
                         >
                           {viewModel.title[language]}
                         </motion.h1>
+                        {viewModel.location[language] ? (
                         <motion.div 
-                          className="flex items-center gap-2 mt-3 text-dark-400"
+                          className="flex items-center gap-2 mt-3 text-slate-600 dark:text-dark-400"
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           transition={{ delay: 0.3 }}
@@ -431,13 +436,14 @@ export default function ProjectDetailClient({
                           <MapPin className="w-5 h-5 text-gold-400" />
                           <span>{viewModel.location[language]}</span>
                         </motion.div>
+                        ) : null}
                       </div>
                       
                       <div className="flex gap-2 sm:gap-3 shrink-0 self-start">
                         <motion.button
                           type="button"
                           onClick={() => void handleShare()}
-                          className="p-3 sm:p-4 rounded-xl glass text-dark-400 hover:text-gold-400 transition-colors relative"
+                          className="p-3 sm:p-4 rounded-xl glass text-slate-600 hover:text-gold-500 dark:text-dark-400 dark:hover:text-gold-400 transition-colors relative"
                           whileHover={{ scale: 1.1, rotate: 15 }}
                           whileTap={{ scale: 0.9 }}
                           aria-label={language === 'ar' ? 'مشاركة المشروع' : 'Share project'}
@@ -466,7 +472,7 @@ export default function ProjectDetailClient({
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: 0.4 + index * 0.1 }}
                           whileHover={{ scale: 1.05, y: -5 }}
-                          className="p-3 sm:p-5 rounded-xl bg-dark-800/50 text-center border border-white/5 hover:border-gold-500/30 transition-all cursor-pointer group"
+                          className="p-3 sm:p-5 rounded-xl bg-slate-100 dark:bg-dark-800/50 text-center border border-slate-200/80 dark:border-white/5 hover:border-gold-500/30 transition-all cursor-pointer group"
                         >
                           <motion.div
                             animate={{ rotate: [0, 10, -10, 0] }}
@@ -474,8 +480,8 @@ export default function ProjectDetailClient({
                           >
                             <stat.icon className="w-7 h-7 text-gold-400 mx-auto mb-3 group-hover:scale-110 transition-transform" />
                           </motion.div>
-                          <div className="text-lg sm:text-2xl font-bold text-white break-words">{stat.value}</div>
-                          <div className="text-sm text-dark-400">{stat.label}</div>
+                          <div className="text-lg sm:text-2xl font-bold text-slate-900 dark:text-white break-words">{stat.value}</div>
+                          <div className="text-sm text-slate-600 dark:text-dark-400">{stat.label}</div>
                         </motion.div>
                       ))}
                     </div>
@@ -490,19 +496,19 @@ export default function ProjectDetailClient({
                 transition={{ delay: 0.1 }}
               >
                 <Card3D intensity={3} className="rounded-3xl">
-                  <div className="glass rounded-3xl p-4 sm:p-8 border border-white/10 relative overflow-hidden">
+                  <div className="glass rounded-3xl p-4 sm:p-8 border border-slate-200/80 dark:border-white/10 relative overflow-hidden">
                     {/* Decorative Corner */}
                     <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-gold-500/10 to-transparent rounded-bl-full" />
                     
                     <motion.h2 
-                      className="text-2xl font-bold text-white mb-6 flex items-center gap-3"
+                      className="text-2xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-3"
                       whileHover={{ x: direction === 'rtl' ? -5 : 5 }}
                     >
                       <Sparkles className="w-6 h-6 text-gold-400" />
                       {language === 'ar' ? 'عن المشروع' : 'About Project'}
                     </motion.h2>
                     <motion.p 
-                      className="text-dark-300 leading-relaxed text-lg relative z-10"
+                      className="text-slate-600 dark:text-dark-300 leading-relaxed text-lg relative z-10"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ delay: 0.3 }}
@@ -520,9 +526,9 @@ export default function ProjectDetailClient({
                 transition={{ delay: 0.2 }}
               >
                 <Card3D intensity={3} className="rounded-3xl">
-                  <div className="glass rounded-3xl p-4 sm:p-8 border border-white/10">
+                  <div className="glass rounded-3xl p-4 sm:p-8 border border-slate-200/80 dark:border-white/10">
                     <motion.h2 
-                      className="text-2xl font-bold text-white mb-6 flex items-center gap-3"
+                      className="text-2xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-3"
                       whileHover={{ x: direction === 'rtl' ? -5 : 5 }}
                     >
                       <CheckCircle className="w-6 h-6 text-gold-400" />
@@ -538,7 +544,7 @@ export default function ProjectDetailClient({
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: 0.3 + index * 0.1, type: 'spring', stiffness: 100 }}
                           whileHover={{ scale: 1.02, x: direction === 'rtl' ? -5 : 5 }}
-                          className="flex items-center gap-4 p-5 rounded-xl bg-dark-800/50 border border-white/5 hover:border-gold-500/30 transition-all cursor-pointer group"
+                          className="flex items-center gap-4 p-5 rounded-xl bg-slate-100 dark:bg-dark-800/50 border border-slate-200/60 dark:border-white/5 hover:border-gold-500/30 transition-all cursor-pointer group"
                         >
                           <motion.div
                             className="p-2 rounded-lg bg-gold-500/20"
@@ -547,7 +553,7 @@ export default function ProjectDetailClient({
                           >
                             <CheckCircle className="w-5 h-5 text-gold-400" />
                           </motion.div>
-                          <span className="text-dark-200 group-hover:text-white transition-colors">
+                          <span className="text-slate-700 dark:text-dark-200 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
                             {feature[language]}
                           </span>
                         </motion.div>
@@ -565,7 +571,7 @@ export default function ProjectDetailClient({
                 transition={{ delay: 0.3 }}
                 className="glass rounded-3xl p-4 sm:p-8"
               >
-                <h2 className="text-2xl font-bold text-white mb-6">
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">
                   {language === 'ar' ? 'موقع المشروع' : 'Project Location'}
                 </h2>
                 <LocationMap
@@ -597,10 +603,10 @@ export default function ProjectDetailClient({
                     <FileText className="w-8 h-8 text-dark-900" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-white">
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">
                       {language === 'ar' ? 'كتيب المشروع' : 'Project Brochure'}
                     </h3>
-                    <p className="text-dark-400 text-sm">
+                    <p className="text-slate-600 dark:text-dark-400 text-sm">
                       {viewModel.pdfUrl
                         ? language === 'ar'
                           ? 'ملف PDF'
@@ -624,18 +630,18 @@ export default function ProjectDetailClient({
                     <span>{t('projects.downloadPdf')}</span>
                   </motion.a>
                 ) : (
-                  <div className="w-full py-4 px-6 rounded-xl bg-dark-800/60 text-dark-400 text-sm text-center border border-dark-700">
+                  <div className="w-full py-4 px-6 rounded-xl bg-slate-100 dark:bg-dark-800/60 text-slate-600 dark:text-dark-400 text-sm text-center border border-slate-200 dark:border-dark-700">
                     {language === 'ar' ? 'قريباً' : 'Coming soon'}
                   </div>
                 )}
 
-                <div className="mt-6 pt-6 border-t border-dark-700">
-                  <h4 className="text-white font-medium mb-4">
+                <div className="mt-6 pt-6 border-t border-slate-200 dark:border-dark-700">
+                  <h4 className="text-slate-900 dark:text-white font-medium mb-4">
                     {language === 'ar' ? 'هل تحتاج مساعدة؟' : 'Need Help?'}
                   </h4>
                   <a
                     href={`tel:${site.phone.replace(/\s/g, '')}`}
-                    className="flex items-center gap-3 p-4 rounded-xl bg-dark-800/50 hover:bg-dark-800 transition-colors"
+                    className="flex items-center gap-3 p-4 rounded-xl bg-slate-100 dark:bg-dark-800/50 hover:bg-slate-200 dark:hover:bg-dark-800 transition-colors"
                   >
                     <div className="p-2 rounded-lg bg-green-500/20">
                       <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 24 24">
@@ -643,10 +649,10 @@ export default function ProjectDetailClient({
                       </svg>
                     </div>
                     <div>
-                      <p className="text-dark-400 text-sm">
+                      <p className="text-slate-600 dark:text-dark-400 text-sm">
                         {language === 'ar' ? 'تواصل معنا' : 'Contact Us'}
                       </p>
-                      <p className="text-white font-medium">{site.phone}</p>
+                      <p className="text-slate-900 dark:text-white font-medium">{site.phone}</p>
                     </div>
                   </a>
                 </div>

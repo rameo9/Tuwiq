@@ -480,10 +480,11 @@ export default function ContactSection({
                            language === 'ar' ? 'ساعات العمل' : 'Working Hours'}
                         </p>
                         <motion.p 
-                          className="text-slate-900 dark:text-white font-semibold"
-                          animate={{
-                            color: hoveredInfo === item.key ? '#d4af37' : '#ffffff',
-                          }}
+                          className={`font-semibold ${
+                            hoveredInfo === item.key
+                              ? 'text-gold-500'
+                              : 'text-slate-900 dark:text-white'
+                          }`}
                         >
                           {item.value[language]}
                         </motion.p>

@@ -7,6 +7,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { MapPin, Maximize, Home, ArrowUpRight, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import Card3D from '@/components/ui/Card3D';
+import { shareSubtitleFromLocation } from '@/lib/share-project';
 
 type CmsProjectRow = {
   id: number;
@@ -33,7 +34,10 @@ export default function ProjectsSection({ cmsProjects }: { cmsProjects: CmsProje
       cmsProjects.map((p) => ({
         id: p.id,
         title: { ar: p.titleAr, en: p.titleEn },
-        location: { ar: p.locationAr, en: p.locationEn },
+        location: {
+          ar: shareSubtitleFromLocation(p.locationAr),
+          en: shareSubtitleFromLocation(p.locationEn),
+        },
         area: p.area,
         units: p.units,
         image: p.mainImageUrl,
@@ -277,6 +281,7 @@ export default function ProjectsSection({ cmsProjects }: { cmsProjects: CmsProje
                             {project.title[language]}
                           </motion.h3>
                           
+                          {project.location[language] ? (
                           <motion.div 
                             className="flex items-center gap-2 text-slate-300 dark:text-dark-400 mb-4"
                             animate={{
@@ -292,6 +297,7 @@ export default function ProjectsSection({ cmsProjects }: { cmsProjects: CmsProje
                             </motion.div>
                             <span className="text-sm">{project.location[language]}</span>
                           </motion.div>
+                          ) : null}
 
                           {/* Stats with Slide Animation */}
                           <motion.div 
