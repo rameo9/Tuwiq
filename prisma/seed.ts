@@ -15,6 +15,7 @@ const landingJson = {
       en: 'We offer you the finest luxury real estate projects in Saudi Arabia',
     },
     ctaText: { ar: 'استكشف مشاريعنا', en: 'Explore Our Projects' },
+    videoUrl: '',
     images: [
       'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920&q=80',
       'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1920&q=80',
@@ -60,8 +61,8 @@ const landingJson = {
   },
   footer: {
     copyright: {
-      ar: 'جميع الحقوق محفوظة © 2026 صقر الجزيرة',
-      en: '© 2026 Saqr Al Jazera. All rights reserved.',
+      ar: '© طويق',
+      en: '© Tuwaiq',
     },
     companyBlurb: {
       ar: 'نبني المستقبل بأيدٍ أمينة، ونحقق أحلامكم العقارية بأعلى معايير الجودة والاحترافية.',
@@ -203,7 +204,9 @@ async function main() {
       { platform: 'instagram', url: 'https://instagram.com/saqraljazera', enabled: true, sortOrder: 2 },
       { platform: 'linkedin', url: 'https://linkedin.com/company/saqraljazera', enabled: true, sortOrder: 3 },
       { platform: 'youtube', url: '', enabled: false, sortOrder: 4 },
-      { platform: 'whatsapp', url: '966551234567', enabled: true, sortOrder: 5 },
+      { platform: 'snapchat', url: '', enabled: false, sortOrder: 5 },
+      { platform: 'tiktok', url: '', enabled: false, sortOrder: 6 },
+      { platform: 'whatsapp', url: '966551234567', enabled: true, sortOrder: 7 },
     ],
   });
 

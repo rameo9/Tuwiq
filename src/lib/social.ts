@@ -1,26 +1,24 @@
-import type { LucideIcon } from 'lucide-react';
-import {
-  Facebook,
-  Twitter,
-  Instagram,
-  Linkedin,
-  Youtube,
-  MessageCircle,
-  Globe,
-} from 'lucide-react';
+import { Globe } from 'lucide-react';
+import { socialIconMap, type SocialIconComponent } from './social-icons';
 
-const iconMap: Record<string, LucideIcon> = {
-  facebook: Facebook,
-  twitter: Twitter,
-  instagram: Instagram,
-  linkedin: Linkedin,
-  youtube: Youtube,
-  whatsapp: MessageCircle,
-  website: Globe,
+export type { SocialIconComponent };
+
+export const SOCIAL_PLATFORM_LABELS: Record<string, { ar: string; en: string }> = {
+  facebook: { ar: 'فيسبوك', en: 'Facebook' },
+  twitter: { ar: 'تويتر', en: 'Twitter' },
+  instagram: { ar: 'انستغرام', en: 'Instagram' },
+  linkedin: { ar: 'لينكد إن', en: 'LinkedIn' },
+  youtube: { ar: 'يوتيوب', en: 'YouTube' },
+  whatsapp: { ar: 'واتساب', en: 'WhatsApp' },
+  snapchat: { ar: 'سناب شات', en: 'Snapchat' },
+  tiktok: { ar: 'تيك توك', en: 'TikTok' },
+  website: { ar: 'الموقع', en: 'Website' },
 };
 
-export function getSocialIcon(platform: string): LucideIcon {
-  return iconMap[platform] ?? Globe;
+export { socialIconMap };
+
+export function getSocialIcon(platform: string): SocialIconComponent {
+  return socialIconMap[platform] ?? Globe;
 }
 
 export function getSocialHref(platform: string, url: string): string {

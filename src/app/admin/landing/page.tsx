@@ -29,7 +29,9 @@ export default function AdminLanding() {
   const [heroData, setHeroData] = useState(() => clone(defaultLanding.hero));
   const [heroTextLang, setHeroTextLang] = useState<'ar' | 'en'>('ar');
   const [heroImageBusy, setHeroImageBusy] = useState(false);
+  const [heroVideoBusy, setHeroVideoBusy] = useState(false);
   const heroImageInputRef = useRef<HTMLInputElement>(null);
+  const heroVideoInputRef = useRef<HTMLInputElement>(null);
   const [aboutData, setAboutData] = useState(() => clone(defaultLanding.about));
   const [footerData, setFooterData] = useState(() => clone(defaultLanding.footer));
 
@@ -42,6 +44,18 @@ export default function AdminLanding() {
       window.alert(e instanceof Error ? e.message : 'فشل رفع الصورة.');
     } finally {
       setHeroImageBusy(false);
+    }
+  };
+
+  const uploadHeroVideo = async (file: File) => {
+    setHeroVideoBusy(true);
+    try {
+      const url = await uploadAdminFile(file);
+      setHeroData((prev) => ({ ...prev, videoUrl: url }));
+    } catch (e) {
+      window.alert(e instanceof Error ? e.message : 'فشل رفع الفيديو.');
+    } finally {
+      setHeroVideoBusy(false);
     }
   };
 
@@ -269,6 +283,60 @@ export default function AdminLanding() {
                       className="w-full px-4 py-3 bg-dark-800 border border-dark-700 rounded-xl text-white focus:outline-none focus:border-gold-500/50"
                     />
                   </div>
+                </div>
+              </div>
+
+              {/* Hero promo video */}
+              <div className="bg-dark-900 rounded-2xl border border-dark-800 p-6 space-y-4">
+                <h2 className="text-lg font-bold text-white">فيديو «شاهد الفيديو»</h2>
+                <p className="text-dark-400 text-sm">
+                  يظهر زر «شاهد الفيديو» في الهيرو فقط عند وجود رابط. يمكنك لصق رابط YouTube أو رفع ملف MP4/WebM
+                  (حتى 25 MB).
+                </p>
+                <input
+                  ref={heroVideoInputRef}
+                  type="file"
+                  accept="video/mp4,video/webm,video/quicktime"
+                  className="hidden"
+                  onChange={async (ev) => {
+                    const file = ev.target.files?.[0];
+                    ev.target.value = '';
+                    if (file) await uploadHeroVideo(file);
+                  }}
+                />
+                <div>
+                  <label className="block text-dark-300 text-sm font-medium mb-2">
+                    رابط YouTube أو ملف مرفوع
+                  </label>
+                  <input
+                    type="url"
+                    value={heroData.videoUrl ?? ''}
+                    onChange={(e) =>
+                      setHeroData((prev) => ({ ...prev, videoUrl: e.target.value }))
+                    }
+                    placeholder="https://youtube.com/watch?v=... أو /uploads/video.mp4"
+                    className="w-full px-4 py-3 bg-dark-800 border border-dark-700 rounded-xl text-white focus:outline-none focus:border-gold-500/50"
+                  />
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    type="button"
+                    disabled={heroVideoBusy}
+                    onClick={() => heroVideoInputRef.current?.click()}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-dark-800 text-gold-400 border border-dark-700 disabled:opacity-50"
+                  >
+                    <Upload className="w-4 h-4" />
+                    {heroVideoBusy ? 'جاري الرفع...' : 'رفع فيديو'}
+                  </button>
+                  {heroData.videoUrl ? (
+                    <button
+                      type="button"
+                      onClick={() => setHeroData((prev) => ({ ...prev, videoUrl: '' }))}
+                      className="px-4 py-2 rounded-xl bg-red-500/20 text-red-400 border border-red-500/30"
+                    >
+                      حذف الفيديو
+                    </button>
+                  ) : null}
                 </div>
               </div>
 

@@ -10,6 +10,7 @@ export const defaultLanding = {
       en: 'We offer you the finest luxury real estate projects in Saudi Arabia',
     },
     ctaText: { ar: 'استكشف مشاريعنا', en: 'Explore Our Projects' },
+    videoUrl: '',
     images: [
       'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920&q=80',
       'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1920&q=80',
@@ -55,8 +56,8 @@ export const defaultLanding = {
   },
   footer: {
     copyright: {
-      ar: 'جميع الحقوق محفوظة © 2026 صقر الجزيرة',
-      en: '© 2026 Saqr Al Jazera. All rights reserved.',
+      ar: '© طويق',
+      en: '© Tuwaiq',
     },
     companyBlurb: {
       ar: 'نبني المستقبل بأيدٍ أمينة.',

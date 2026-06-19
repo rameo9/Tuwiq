@@ -44,6 +44,17 @@ function cloneSite(): SitePayload {
   return JSON.parse(JSON.stringify(defaultSite)) as SitePayload;
 }
 
+function normalizeLegacyCopyright(landing: LandingPayload): void {
+  const ar = landing.footer.copyright?.ar ?? '';
+  const en = landing.footer.copyright?.en ?? '';
+  const legacy =
+    /صقر\s*الجزيرة|Saqr\s*Al\s*Jazera/i.test(`${ar} ${en}`) ||
+    (ar.includes('جميع الحقوق') && !ar.includes('طويق'));
+  if (legacy) {
+    landing.footer.copyright = { ar: '© طويق', en: '© Tuwaiq' };
+  }
+}
+
 export function parseLandingFromDb(raw: string | null | undefined): LandingPayload {
   const base = cloneLanding();
   if (!raw) return base;
@@ -57,6 +68,10 @@ export function parseLandingFromDb(raw: string | null | undefined): LandingPaylo
     if (!Array.isArray(pa?.features) || (pa.features as unknown[]).length === 0) {
       merged.about.features = base.about.features;
     }
+    if (typeof merged.hero.videoUrl !== 'string') {
+      merged.hero.videoUrl = '';
+    }
+    normalizeLegacyCopyright(merged);
     return merged;
   } catch {
     return base;
@@ -79,10 +94,15 @@ export function mergeLandingPatch(
   raw: string | null | undefined,
 ): LandingPayload {
   const current = parseLandingFromDb(raw);
-  return deepMerge(
+  const merged = deepMerge(
     current as unknown as Record<string, unknown>,
     patch,
   ) as unknown as LandingPayload;
+  if (typeof merged.hero.videoUrl !== 'string') {
+    merged.hero.videoUrl = '';
+  }
+  normalizeLegacyCopyright(merged);
+  return merged;
 }
 
 export function mergeSitePatch(

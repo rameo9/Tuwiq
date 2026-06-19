@@ -5,9 +5,10 @@ import { motion, useScroll, useTransform, AnimatePresence, useMotionValue, useSp
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useCounter } from '@/hooks/useScrollReveal';
-import { ChevronDown, Play, ArrowLeft, ArrowRight, Sparkles } from 'lucide-react';
+import { ChevronDown, Play, ArrowLeft, ArrowRight, Sparkles, X } from 'lucide-react';
 import MagneticButton from '@/components/ui/MagneticButton';
 import type { LandingPayload } from '@/lib/cms-read';
+import { parseHeroVideoUrl } from '@/lib/hero-video';
 
 function parseStatParts(val: string): { n: number; suffix: string } {
   const s = String(val);
@@ -33,8 +34,10 @@ export default function HeroSection({ hero }: { hero: LandingPayload['hero'] }) 
   const { language, direction } = useLanguage();
   const { colors } = useTheme();
   const [currentImage, setCurrentImage] = useState(0);
+  const [videoOpen, setVideoOpen] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const heroRef = useRef<HTMLDivElement>(null);
+  const videoSource = parseHeroVideoUrl(hero.videoUrl);
   const { scrollY } = useScroll();
   
   const y = useTransform(scrollY, [0, 500], [0, 200]);
@@ -99,7 +102,7 @@ export default function HeroSection({ hero }: { hero: LandingPayload['hero'] }) 
     <section 
       ref={heroRef}
       id="home" 
-      className="relative h-screen overflow-hidden"
+      className="relative min-h-[100dvh] flex flex-col overflow-hidden"
     >
       {/* Animated Background */}
       <motion.div 
@@ -222,10 +225,10 @@ export default function HeroSection({ hero }: { hero: LandingPayload['hero'] }) 
 
       {/* Content */}
       <motion.div 
-        className="relative z-10 h-full flex flex-col justify-center"
+        className="relative z-10 flex-1 flex flex-col justify-center pt-20 md:pt-24 pb-2"
         style={{ opacity, y: textY }}
       >
-        <div className="container mx-auto px-6">
+        <div className="container mx-auto px-4 sm:px-6">
           <div className="max-w-5xl mx-auto text-center">
             {/* Animated Badge */}
             <motion.div
@@ -234,7 +237,7 @@ export default function HeroSection({ hero }: { hero: LandingPayload['hero'] }) 
               transition={{ duration: 0.8, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
             >
               <motion.div 
-                className="inline-flex items-center gap-3 px-6 py-3 rounded-full glass mb-8"
+                className="inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:py-3 rounded-full glass mb-4 sm:mb-6"
                 style={{ borderColor: `${colors.primary}33`, borderWidth: 1 }}
                 whileHover={{ scale: 1.05, borderColor: `${colors.primary}80` }}
                 animate={{
@@ -265,9 +268,9 @@ export default function HeroSection({ hero }: { hero: LandingPayload['hero'] }) 
             </motion.div>
 
             {/* Title */}
-            <div className="mb-6">
+            <div className="mb-3 sm:mb-6">
               <motion.h1 
-                className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-slate-900 drop-shadow-sm dark:text-white dark:drop-shadow-none"
+                className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-slate-900 drop-shadow-sm dark:text-white dark:drop-shadow-none px-1"
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.3 }}
@@ -278,7 +281,7 @@ export default function HeroSection({ hero }: { hero: LandingPayload['hero'] }) 
 
             {/* Animated Underline */}
             <motion.div
-              className="h-1 mx-auto mb-8 rounded-full"
+              className="h-1 mx-auto mb-4 sm:mb-6 rounded-full"
               style={{ background: `linear-gradient(to right, transparent, ${colors.primary}, transparent)` }}
               initial={{ width: 0, opacity: 0 }}
               animate={{ width: '60%', opacity: 1 }}
@@ -291,21 +294,21 @@ export default function HeroSection({ hero }: { hero: LandingPayload['hero'] }) 
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 1.4 }}
             >
-              <p className="text-xl md:text-2xl text-slate-600 dark:text-dark-300 mb-12 max-w-3xl mx-auto leading-relaxed">
+              <p className="text-base sm:text-xl md:text-2xl text-slate-600 dark:text-dark-300 mb-6 sm:mb-8 max-w-3xl mx-auto leading-relaxed px-1">
                 {hero.description[language]}
               </p>
             </motion.div>
 
             {/* CTA Buttons */}
             <motion.div 
-              className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8"
+              className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 mb-6 sm:mb-8 max-w-md sm:max-w-none mx-auto"
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 1.8 }}
             >
               <motion.button
                 onClick={() => document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' })}
-                className="px-8 py-4 text-dark-900 font-bold rounded-xl shadow-lg flex items-center gap-3"
+                className="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 text-dark-900 font-bold rounded-xl shadow-lg flex items-center justify-center gap-3"
                 style={{ background: `linear-gradient(to right, ${colors.primary}, ${colors.secondary})` }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -318,125 +321,178 @@ export default function HeroSection({ hero }: { hero: LandingPayload['hero'] }) 
                 )}
               </motion.button>
 
-              <motion.button
-                className="px-8 py-4 glass text-slate-800 font-semibold rounded-xl flex items-center gap-3 border border-slate-300/80 dark:border-white/20 dark:text-white"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <div 
-                  className="w-10 h-10 rounded-full flex items-center justify-center"
-                  style={{ backgroundColor: `${colors.primary}33` }}
+              {videoSource && (
+                <motion.button
+                  type="button"
+                  onClick={() => setVideoOpen(true)}
+                  className="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 glass text-slate-800 font-semibold rounded-xl flex items-center justify-center gap-3 border border-slate-300/80 dark:border-white/20 dark:text-white"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  <Play className="w-4 h-4 fill-current" style={{ color: colors.primary }} />
+                  <div
+                    className="w-10 h-10 rounded-full flex items-center justify-center"
+                    style={{ backgroundColor: `${colors.primary}33` }}
+                  >
+                    <Play className="w-4 h-4 fill-current" style={{ color: colors.primary }} />
+                  </div>
+                  <span>{language === 'ar' ? 'شاهد الفيديو' : 'Watch Video'}</span>
+                </motion.button>
+              )}
+            </motion.div>
+
+            {/* Stats — in document flow (no overlap with buttons) */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 2.2 }}
+              className="max-w-xl mx-auto"
+            >
+              <div className="glass rounded-2xl py-4 px-4 sm:py-5 sm:px-6" dir="ltr">
+                <div className="flex justify-between items-center gap-2">
+                  <div ref={yearsCounter.ref} className="text-center flex-1 min-w-0">
+                    <div className="text-xl sm:text-2xl md:text-3xl font-bold truncate" style={{ color: colors.primary }}>
+                      +{yearsCounter.count}{py.suffix}
+                    </div>
+                    <p className="text-slate-600 dark:text-dark-400 text-[10px] sm:text-xs mt-1 leading-tight" dir="rtl">
+                      {statYears.label[language]}
+                    </p>
+                  </div>
+                  <div ref={clientsCounter.ref} className="text-center flex-1 min-w-0">
+                    <div className="text-xl sm:text-2xl md:text-3xl font-bold truncate" style={{ color: colors.primary }}>
+                      +{clientsCounter.count}{pc.suffix}
+                    </div>
+                    <p className="text-slate-600 dark:text-dark-400 text-[10px] sm:text-xs mt-1 leading-tight" dir="rtl">
+                      {statClients.label[language]}
+                    </p>
+                  </div>
+                  <div ref={projectsCounter.ref} className="text-center flex-1 min-w-0">
+                    <div className="text-xl sm:text-2xl md:text-3xl font-bold truncate" style={{ color: colors.primary }}>
+                      +{projectsCounter.count}{pp.suffix}
+                    </div>
+                    <p className="text-slate-600 dark:text-dark-400 text-[10px] sm:text-xs mt-1 leading-tight" dir="rtl">
+                      {statProjects.label[language]}
+                    </p>
+                  </div>
                 </div>
-                <span>{language === 'ar' ? 'شاهد الفيديو' : 'Watch Video'}</span>
-              </motion.button>
+              </div>
             </motion.div>
           </div>
         </div>
 
-        {/* Animated Stats */}
-        <motion.div 
-          className="absolute bottom-28 left-0 right-0"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 2.2 }}
-        >
-          <div className="container mx-auto px-6">
-            <div className="glass rounded-2xl py-5 px-6 max-w-xl mx-auto" dir="ltr">
-              <div className="flex justify-between items-center">
-                <div ref={yearsCounter.ref} className="text-center flex-1">
-                  <div className="text-2xl md:text-3xl font-bold" style={{ color: colors.primary }}>
-                    +{yearsCounter.count}{py.suffix}
-                  </div>
-                  <p className="text-slate-600 dark:text-dark-400 text-xs mt-1" dir="rtl">
-                    {statYears.label[language]}
-                  </p>
-                </div>
-                <div ref={clientsCounter.ref} className="text-center flex-1">
-                  <div className="text-2xl md:text-3xl font-bold" style={{ color: colors.primary }}>
-                    +{clientsCounter.count}{pc.suffix}
-                  </div>
-                  <p className="text-slate-600 dark:text-dark-400 text-xs mt-1" dir="rtl">
-                    {statClients.label[language]}
-                  </p>
-                </div>
-                <div ref={projectsCounter.ref} className="text-center flex-1">
-                  <div className="text-2xl md:text-3xl font-bold" style={{ color: colors.primary }}>
-                    +{projectsCounter.count}{pp.suffix}
-                  </div>
-                  <p className="text-slate-600 dark:text-dark-400 text-xs mt-1" dir="rtl">
-                    {statProjects.label[language]}
-                  </p>
-                </div>
-              </div>
+        <AnimatePresence>
+          {videoOpen && videoSource && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[200] flex items-center justify-center bg-black/85 p-4"
+              onClick={() => setVideoOpen(false)}
+            >
+              <button
+                type="button"
+                aria-label={language === 'ar' ? 'إغلاق' : 'Close'}
+                className="absolute top-4 end-4 p-2 rounded-full bg-white/10 text-white hover:bg-white/20"
+                onClick={() => setVideoOpen(false)}
+              >
+                <X className="w-6 h-6" />
+              </button>
+              <motion.div
+                initial={{ scale: 0.92, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.92, opacity: 0 }}
+                className="w-full max-w-4xl aspect-video rounded-2xl overflow-hidden bg-black shadow-2xl"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {videoSource.kind === 'youtube' ? (
+                  <iframe
+                    src={videoSource.embedUrl}
+                    title={language === 'ar' ? 'فيديو تعريفي' : 'Promo video'}
+                    className="w-full h-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                ) : (
+                  <video src={videoSource.src} controls autoPlay className="w-full h-full" />
+                )}
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Bottom: scroll hint + slide dots */}
+        <div className="shrink-0 pb-5 pt-3 sm:pb-6">
+          <div className="container mx-auto px-4 flex items-center justify-between gap-4">
+            <div className="hidden sm:flex gap-2 min-w-[4rem]">
+              {images.map((_, index) => (
+                <motion.button
+                  key={index}
+                  type="button"
+                  onClick={() => setCurrentImage(index)}
+                  className="relative"
+                  whileHover={{ scale: 1.2 }}
+                  whileTap={{ scale: 0.9 }}
+                  aria-label={`Slide ${index + 1}`}
+                >
+                  <motion.div
+                    className="w-2.5 h-2.5 rounded-full transition-all duration-500"
+                    style={{
+                      backgroundColor: index === currentImage ? colors.primary : 'rgba(255,255,255,0.3)',
+                    }}
+                  />
+                </motion.button>
+              ))}
+            </div>
+
+            <motion.div
+              className="flex-1 flex justify-center cursor-pointer"
+              onClick={handleScroll}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 2.5 }}
+            >
+              <motion.div
+                className="flex flex-col items-center gap-2"
+                animate={{ y: [0, 6, 0] }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+              >
+                <motion.span
+                  className="text-slate-500 dark:text-dark-500 text-[10px] sm:text-xs tracking-[0.2em] uppercase"
+                  animate={{ opacity: [0.5, 1, 0.5] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  {language === 'ar' ? 'اكتشف المزيد' : 'Discover'}
+                </motion.span>
+                <motion.div
+                  className="w-5 h-8 sm:w-6 sm:h-10 rounded-full flex justify-center pt-1.5 sm:pt-2"
+                  style={{ border: `2px solid ${colors.primary}80` }}
+                >
+                  <motion.div
+                    className="w-1 h-2 sm:w-1.5 sm:h-3 rounded-full"
+                    style={{ backgroundColor: colors.primary }}
+                    animate={{ y: [0, 8, 0], opacity: [1, 0.3, 1] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  />
+                </motion.div>
+              </motion.div>
+            </motion.div>
+
+            <div className="flex sm:hidden gap-1.5 min-w-[4rem] justify-end">
+              {images.map((_, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() => setCurrentImage(index)}
+                  className="w-2 h-2 rounded-full transition-all"
+                  style={{
+                    backgroundColor: index === currentImage ? colors.primary : 'rgba(255,255,255,0.35)',
+                  }}
+                  aria-label={`Slide ${index + 1}`}
+                />
+              ))}
             </div>
           </div>
-        </motion.div>
-
-        {/* Animated Scroll Indicator */}
-        <motion.div 
-          className="absolute bottom-8 left-1/2 transform -translate-x-1/2 cursor-pointer"
-          onClick={handleScroll}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 2.5 }}
-        >
-          <motion.div 
-            className="flex flex-col items-center gap-3"
-            animate={{ y: [0, 10, 0] }}
-            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-          >
-            <motion.span 
-              className="text-slate-500 dark:text-dark-500 text-xs tracking-[0.3em] uppercase"
-              animate={{ opacity: [0.5, 1, 0.5] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              {language === 'ar' ? 'اكتشف المزيد' : 'Discover'}
-            </motion.span>
-            <motion.div
-              className="w-6 h-10 rounded-full flex justify-center pt-2"
-              style={{ border: `2px solid ${colors.primary}80` }}
-            >
-              <motion.div
-                className="w-1.5 h-3 rounded-full"
-                style={{ backgroundColor: colors.primary }}
-                animate={{ y: [0, 12, 0], opacity: [1, 0.3, 1] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-              />
-            </motion.div>
-          </motion.div>
-        </motion.div>
+        </div>
       </motion.div>
-
-      {/* Image Navigation Dots */}
-      <div className="absolute bottom-8 right-8 z-20 flex gap-3">
-        {images.map((_, index) => (
-          <motion.button
-            key={index}
-            onClick={() => setCurrentImage(index)}
-            className="relative"
-            whileHover={{ scale: 1.2 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            <motion.div
-              className="w-3 h-3 rounded-full transition-all duration-500"
-              style={{ 
-                backgroundColor: index === currentImage ? colors.primary : 'rgba(255,255,255,0.3)'
-              }}
-            />
-            {index === currentImage && (
-              <motion.div
-                className="absolute inset-0 rounded-full"
-                style={{ border: `2px solid ${colors.primary}` }}
-                initial={{ scale: 1, opacity: 1 }}
-                animate={{ scale: 2, opacity: 0 }}
-                transition={{ duration: 1, repeat: Infinity }}
-              />
-            )}
-          </motion.button>
-        ))}
-      </div>
 
       {/* Decorative Orbiting Elements */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">

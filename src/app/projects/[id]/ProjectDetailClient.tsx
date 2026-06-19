@@ -6,7 +6,6 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import Navbar from '@/components/ui/Navbar';
 import Footer from '@/components/sections/Footer';
 import Card3D from '@/components/ui/Card3D';
-import ParticleBackground from '@/components/ui/ParticleBackground';
 import { 
   MapPin, 
   Maximize, 
@@ -75,8 +74,8 @@ export default function ProjectDetailClient({
     offset: ['start start', 'end start'],
   });
 
-  const imageY = useTransform(scrollYProgress, [0, 1], ['0%', '30%']);
-  const imageScale = useTransform(scrollYProgress, [0, 1], [1, 1.2]);
+  const imageY = useTransform(scrollYProgress, [0, 1], ['0%', '15%']);
+  const imageScale = useTransform(scrollYProgress, [0, 1], [1, 1.05]);
   const overlayOpacity = useTransform(scrollYProgress, [0, 0.5], [0.3, 0.8]);
 
   const viewModel = useMemo(() => {
@@ -120,20 +119,26 @@ export default function ProjectDetailClient({
   }, []);
 
   return (
-    <main className="min-h-screen bg-slate-100 text-slate-900 dark:bg-dark-950 dark:text-white">
+    <main className="min-h-screen w-full max-w-[100vw] overflow-x-hidden bg-slate-100 text-slate-900 dark:bg-dark-950 dark:text-white">
       <Navbar siteName={site.siteName} />
 
-      {/* Hero Image Gallery with Parallax */}
-      <section ref={heroRef} className="relative h-[80vh] overflow-hidden">
+      {/* Hero Image Gallery */}
+      <section ref={heroRef} className="relative h-[52vh] min-h-[260px] sm:h-[65vh] md:h-[80vh] overflow-hidden">
+        <button
+          type="button"
+          aria-label={language === 'ar' ? 'عرض الصور' : 'View images'}
+          className="absolute inset-0 z-0 sm:hidden"
+          onClick={() => setIsLightboxOpen(true)}
+        />
         {/* Main Image with Parallax */}
         <AnimatePresence mode="wait">
           <motion.div
             key={currentImage}
-            initial={{ opacity: 0, scale: 1.2, filter: 'blur(10px)' }}
-            animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-            exit={{ opacity: 0, scale: 0.95 }}
+            initial={{ opacity: 0, scale: 1.05 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
             transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="absolute inset-0"
+            className="absolute inset-0 pointer-events-none"
             style={{ y: imageY, scale: imageScale }}
           >
             <img
@@ -159,11 +164,11 @@ export default function ProjectDetailClient({
           }}
         />
 
-        {/* Floating Particles */}
+        {/* Floating Particles — desktop only */}
         {[...Array(8)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute w-2 h-2 bg-gold-500/40 rounded-full"
+            className="absolute w-2 h-2 bg-gold-500/40 rounded-full hidden sm:block"
             style={{
               left: `${20 + i * 10}%`,
               bottom: '20%',
@@ -181,103 +186,113 @@ export default function ProjectDetailClient({
           />
         ))}
 
-        {/* Navigation Buttons with Advanced Animation */}
+        {/* Navigation */}
         <motion.button
+          type="button"
           onClick={() => navigateImage('prev')}
-          className="absolute left-6 top-1/2 -translate-y-1/2 p-4 rounded-full glass hover:bg-gold-500/20 transition-all z-10 border border-white/10 hover:border-gold-500/50"
-          whileHover={{ scale: 1.1, x: -5 }}
+          aria-label={language === 'ar' ? 'الصورة السابقة' : 'Previous image'}
+          className="absolute top-1/2 -translate-y-1/2 start-2 sm:start-6 z-10 p-2 sm:p-4 rounded-full glass hover:bg-gold-500/20 transition-all border border-white/10 hover:border-gold-500/50"
+          whileHover={{ scale: 1.08 }}
           whileTap={{ scale: 0.95 }}
         >
-          <ChevronLeft className="w-8 h-8 text-white" />
+          {direction === 'rtl' ? (
+            <ChevronRight className="w-5 h-5 sm:w-8 sm:h-8 text-white" />
+          ) : (
+            <ChevronLeft className="w-5 h-5 sm:w-8 sm:h-8 text-white" />
+          )}
         </motion.button>
         <motion.button
+          type="button"
           onClick={() => navigateImage('next')}
-          className="absolute right-6 top-1/2 -translate-y-1/2 p-4 rounded-full glass hover:bg-gold-500/20 transition-all z-10 border border-white/10 hover:border-gold-500/50"
-          whileHover={{ scale: 1.1, x: 5 }}
+          aria-label={language === 'ar' ? 'الصورة التالية' : 'Next image'}
+          className="absolute top-1/2 -translate-y-1/2 end-2 sm:end-6 z-10 p-2 sm:p-4 rounded-full glass hover:bg-gold-500/20 transition-all border border-white/10 hover:border-gold-500/50"
+          whileHover={{ scale: 1.08 }}
           whileTap={{ scale: 0.95 }}
         >
-          <ChevronRight className="w-8 h-8 text-white" />
+          {direction === 'rtl' ? (
+            <ChevronLeft className="w-5 h-5 sm:w-8 sm:h-8 text-white" />
+          ) : (
+            <ChevronRight className="w-5 h-5 sm:w-8 sm:h-8 text-white" />
+          )}
         </motion.button>
 
-        {/* View All Button with Glow */}
+        {/* View All — tablet+ */}
         <motion.button
+          type="button"
           onClick={() => setIsLightboxOpen(true)}
-          className="absolute bottom-28 right-6 flex items-center gap-3 px-6 py-4 glass rounded-2xl text-white hover:bg-gold-500/10 transition-all z-10 border border-white/10 hover:border-gold-500/50"
-          whileHover={{ scale: 1.05, boxShadow: '0 20px 40px rgba(212,175,55,0.2)' }}
+          className="absolute bottom-24 end-4 sm:bottom-28 sm:end-6 hidden sm:flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-4 glass rounded-2xl text-white hover:bg-gold-500/10 transition-all z-10 border border-white/10 hover:border-gold-500/50"
+          whileHover={{ scale: 1.05 }}
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.5 }}
         >
-          <motion.div
-            animate={{ rotate: [0, 360] }}
-            transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
-          >
-            <ZoomIn className="w-5 h-5" />
-          </motion.div>
-          <span className="font-medium">{language === 'ar' ? 'عرض الكل' : 'View All'}</span>
-          <motion.span 
-            className="px-3 py-1 bg-gradient-to-r from-gold-500 to-gold-600 text-dark-900 rounded-full text-sm font-bold"
-            animate={{ scale: [1, 1.1, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
+          <ZoomIn className="w-5 h-5 shrink-0" />
+          <span className="font-medium text-sm sm:text-base">
+            {language === 'ar' ? 'عرض الكل' : 'View All'}
+          </span>
+          <span className="px-2.5 py-0.5 bg-gradient-to-r from-gold-500 to-gold-600 text-dark-900 rounded-full text-xs sm:text-sm font-bold">
             {viewModel.images.length}
-          </motion.span>
+          </span>
         </motion.button>
 
-        {/* Image Progress Indicator */}
-        <div className="absolute bottom-28 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+        {/* Dots */}
+        <div className="absolute bottom-4 sm:bottom-28 inset-x-0 flex justify-center gap-1.5 sm:gap-2 z-10 px-4">
           {viewModel.images.map((_, index) => (
             <motion.button
               key={index}
+              type="button"
               onClick={() => setCurrentImage(index)}
-              className="relative"
-              whileHover={{ scale: 1.3 }}
+              aria-label={`${language === 'ar' ? 'صورة' : 'Image'} ${index + 1}`}
+              className="relative p-1"
+              whileTap={{ scale: 0.9 }}
             >
-              <div className={`w-2 h-2 rounded-full transition-all ${
-                currentImage === index ? 'w-8 bg-gold-500' : 'bg-white/50 hover:bg-white'
-              }`} />
+              <div
+                className={`h-1.5 sm:h-2 rounded-full transition-all ${
+                  currentImage === index ? 'w-6 sm:w-8 bg-gold-500' : 'w-1.5 sm:w-2 bg-white/50'
+                }`}
+              />
             </motion.button>
           ))}
         </div>
 
-        {/* Thumbnails with Advanced Hover */}
-        <div className="absolute bottom-8 left-6 flex gap-3 z-10">
+        {/* Thumbnails — tablet+ */}
+        <div className="absolute bottom-6 start-4 sm:start-6 hidden md:flex gap-2 sm:gap-3 z-10 max-w-[calc(100%-2rem)] overflow-x-auto">
           {viewModel.images.slice(0, 5).map((img, index) => (
             <motion.button
               key={index}
+              type="button"
               onClick={() => setCurrentImage(index)}
-              className={`relative w-20 h-20 rounded-xl overflow-hidden transition-all ${
-                currentImage === index 
-                  ? 'ring-3 ring-gold-500 scale-110 shadow-lg shadow-gold-500/30' 
+              className={`relative shrink-0 w-14 h-14 sm:w-20 sm:h-20 rounded-xl overflow-hidden transition-all ${
+                currentImage === index
+                  ? 'ring-2 ring-gold-500 scale-105 shadow-lg shadow-gold-500/30'
                   : 'opacity-60 hover:opacity-100'
               }`}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 + index * 0.1 }}
-              whileHover={{ scale: 1.15, y: -5 }}
             >
               <img src={img} alt="" className="w-full h-full object-cover" />
-              {currentImage === index && (
-                <motion.div
-                  className="absolute inset-0 border-2 border-gold-500 rounded-xl"
-                  layoutId="activeThumb"
-                />
-              )}
             </motion.button>
           ))}
         </div>
 
-        {/* Back Button with Animation */}
-        <Link href="/#projects">
+        {/* Back */}
+        <Link href="/#projects" className="absolute top-20 sm:top-24 start-3 sm:start-6 z-10">
           <motion.div
-            className="absolute top-24 left-6 flex items-center gap-3 text-white glass px-5 py-3 rounded-xl z-10 border border-white/10 hover:border-gold-500/50"
-            initial={{ opacity: 0, x: -50 }}
+            className="flex items-center gap-2 sm:gap-3 text-white glass px-3 py-2 sm:px-5 sm:py-3 rounded-xl border border-white/10 hover:border-gold-500/50 max-w-[calc(100vw-1.5rem)]"
+            initial={{ opacity: 0, x: direction === 'rtl' ? 30 : -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
-            whileHover={{ x: direction === 'rtl' ? 8 : -8, backgroundColor: 'rgba(212,175,55,0.1)' }}
+            whileTap={{ scale: 0.98 }}
           >
-            {direction === 'rtl' ? <ArrowRight className="w-5 h-5" /> : <ArrowLeft className="w-5 h-5" />}
-            <span className="font-medium">{language === 'ar' ? 'العودة للمشاريع' : 'Back to Projects'}</span>
+            {direction === 'rtl' ? (
+              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
+            ) : (
+              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
+            )}
+            <span className="font-medium text-xs sm:text-sm truncate">
+              {language === 'ar' ? 'العودة للمشاريع' : 'Back to Projects'}
+            </span>
           </motion.div>
         </Link>
 
@@ -310,10 +325,9 @@ export default function ProjectDetailClient({
       </section>
 
       {/* Project Info */}
-      <section className="relative -mt-20 z-20 pb-20">
-        {/* Background Glow */}
+      <section className="relative -mt-10 sm:-mt-16 md:-mt-20 z-20 pb-12 sm:pb-20">
         <motion.div
-          className="absolute top-0 left-1/4 w-[500px] h-[500px] rounded-full"
+          className="absolute top-0 start-1/4 w-[min(500px,100vw)] h-[500px] rounded-full pointer-events-none"
           style={{
             background: 'radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 70%)',
           }}
@@ -324,20 +338,20 @@ export default function ProjectDetailClient({
           transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut' }}
         />
 
-        <div className="container mx-auto px-6">
-          <div className="grid lg:grid-cols-3 gap-8">
+        <div className="container mx-auto px-4 sm:px-6 max-w-full">
+          <div className="grid lg:grid-cols-3 gap-6 sm:gap-8">
             {/* Main Content */}
-            <div className="lg:col-span-2 space-y-8">
-              {/* Title Card with 3D Effect */}
+            <div className="lg:col-span-2 space-y-6 sm:space-y-8 min-w-0">
+              {/* Title Card */}
               <motion.div
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8 }}
               >
                 <Card3D intensity={5} className="rounded-3xl">
-                  <div className="glass rounded-3xl p-8 border border-white/10">
-                    <div className="flex items-start justify-between mb-6">
-                      <div>
+                  <div className="glass rounded-3xl p-4 sm:p-8 border border-white/10">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-4 sm:mb-6">
+                      <div className="min-w-0 flex-1">
                         <motion.span 
                           className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-gold-500/20 to-gold-600/10 text-gold-400 text-sm font-semibold mb-4 border border-gold-500/20"
                           animate={{
@@ -353,7 +367,7 @@ export default function ProjectDetailClient({
                           {viewModel.status[language]}
                         </motion.span>
                         <motion.h1 
-                          className="text-3xl md:text-4xl font-bold text-white"
+                          className="text-2xl sm:text-3xl md:text-4xl font-bold text-white break-words"
                           initial={{ opacity: 0, x: -30 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: 0.2 }}
@@ -371,10 +385,11 @@ export default function ProjectDetailClient({
                         </motion.div>
                       </div>
                       
-                      <div className="flex gap-3">
+                      <div className="flex gap-2 sm:gap-3 shrink-0 self-start">
                         <motion.button
+                          type="button"
                           onClick={() => setIsLiked(!isLiked)}
-                          className={`p-4 rounded-xl transition-all ${
+                          className={`p-3 sm:p-4 rounded-xl transition-all ${
                             isLiked 
                               ? 'bg-red-500/20 text-red-500 shadow-lg shadow-red-500/20' 
                               : 'glass text-dark-400 hover:text-white'
@@ -390,7 +405,8 @@ export default function ProjectDetailClient({
                           </motion.div>
                         </motion.button>
                         <motion.button
-                          className="p-4 rounded-xl glass text-dark-400 hover:text-gold-400 transition-colors"
+                          type="button"
+                          className="p-3 sm:p-4 rounded-xl glass text-dark-400 hover:text-gold-400 transition-colors"
                           whileHover={{ scale: 1.1, rotate: 15 }}
                           whileTap={{ scale: 0.9 }}
                         >
@@ -400,7 +416,7 @@ export default function ProjectDetailClient({
                     </div>
 
                     {/* Quick Stats with Animation */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mt-6 sm:mt-8">
                       {[
                         { icon: Maximize, value: viewModel.area, label: t('common.sqm') },
                         { icon: Home, value: viewModel.units, label: language === 'ar' ? 'وحدة' : 'Units' },
@@ -413,7 +429,7 @@ export default function ProjectDetailClient({
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: 0.4 + index * 0.1 }}
                           whileHover={{ scale: 1.05, y: -5 }}
-                          className="p-5 rounded-xl bg-dark-800/50 text-center border border-white/5 hover:border-gold-500/30 transition-all cursor-pointer group"
+                          className="p-3 sm:p-5 rounded-xl bg-dark-800/50 text-center border border-white/5 hover:border-gold-500/30 transition-all cursor-pointer group"
                         >
                           <motion.div
                             animate={{ rotate: [0, 10, -10, 0] }}
@@ -421,7 +437,7 @@ export default function ProjectDetailClient({
                           >
                             <stat.icon className="w-7 h-7 text-gold-400 mx-auto mb-3 group-hover:scale-110 transition-transform" />
                           </motion.div>
-                          <div className="text-2xl font-bold text-white">{stat.value}</div>
+                          <div className="text-lg sm:text-2xl font-bold text-white break-words">{stat.value}</div>
                           <div className="text-sm text-dark-400">{stat.label}</div>
                         </motion.div>
                       ))}
@@ -437,7 +453,7 @@ export default function ProjectDetailClient({
                 transition={{ delay: 0.1 }}
               >
                 <Card3D intensity={3} className="rounded-3xl">
-                  <div className="glass rounded-3xl p-8 border border-white/10 relative overflow-hidden">
+                  <div className="glass rounded-3xl p-4 sm:p-8 border border-white/10 relative overflow-hidden">
                     {/* Decorative Corner */}
                     <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-gold-500/10 to-transparent rounded-bl-full" />
                     
@@ -467,7 +483,7 @@ export default function ProjectDetailClient({
                 transition={{ delay: 0.2 }}
               >
                 <Card3D intensity={3} className="rounded-3xl">
-                  <div className="glass rounded-3xl p-8 border border-white/10">
+                  <div className="glass rounded-3xl p-4 sm:p-8 border border-white/10">
                     <motion.h2 
                       className="text-2xl font-bold text-white mb-6 flex items-center gap-3"
                       whileHover={{ x: direction === 'rtl' ? -5 : 5 }}
@@ -507,7 +523,7 @@ export default function ProjectDetailClient({
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="glass rounded-3xl p-8"
+                className="glass rounded-3xl p-4 sm:p-8"
               >
                 <h2 className="text-2xl font-bold text-white mb-6">
                   {language === 'ar' ? 'موقع المشروع' : 'Project Location'}
@@ -527,12 +543,11 @@ export default function ProjectDetailClient({
             </div>
 
             {/* Sidebar */}
-            <div className="lg:col-span-1 space-y-6">
-              {/* Download PDF Card */}
+            <div className="lg:col-span-1 space-y-6 min-w-0">
               <motion.div
                 initial={{ opacity: 0, x: 50 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="glass rounded-3xl p-6 sticky top-24"
+                className="glass rounded-3xl p-4 sm:p-6 lg:sticky lg:top-24"
               >
                 <div className="flex items-center gap-4 mb-6">
                   <div className="p-4 rounded-2xl bg-gradient-to-br from-gold-500 to-gold-600">
@@ -605,35 +620,44 @@ export default function ProjectDetailClient({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-dark-950/98 backdrop-blur-xl flex items-center justify-center"
+            className="fixed inset-0 z-50 bg-dark-950/98 backdrop-blur-xl flex items-center justify-center p-4"
             onClick={() => setIsLightboxOpen(false)}
           >
-            {/* Close Button */}
             <button
+              type="button"
               onClick={() => setIsLightboxOpen(false)}
-              className="absolute top-6 right-6 p-3 rounded-full glass hover:bg-white/20 transition-colors z-10"
+              className="absolute top-4 end-4 sm:top-6 sm:end-6 p-2.5 sm:p-3 rounded-full glass hover:bg-white/20 transition-colors z-10"
             >
-              <X className="w-6 h-6 text-white" />
+              <X className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </button>
 
-            {/* Navigation */}
             <button
+              type="button"
               onClick={(e) => {
                 e.stopPropagation();
                 navigateImage('prev');
               }}
-              className="absolute left-6 top-1/2 -translate-y-1/2 p-4 rounded-full glass hover:bg-white/20 transition-colors z-10"
+              className="absolute start-2 sm:start-6 top-1/2 -translate-y-1/2 p-2.5 sm:p-4 rounded-full glass hover:bg-white/20 transition-colors z-10"
             >
-              <ChevronLeft className="w-8 h-8 text-white" />
+              {direction === 'rtl' ? (
+                <ChevronRight className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+              ) : (
+                <ChevronLeft className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+              )}
             </button>
             <button
+              type="button"
               onClick={(e) => {
                 e.stopPropagation();
                 navigateImage('next');
               }}
-              className="absolute right-6 top-1/2 -translate-y-1/2 p-4 rounded-full glass hover:bg-white/20 transition-colors z-10"
+              className="absolute end-2 sm:end-6 top-1/2 -translate-y-1/2 p-2.5 sm:p-4 rounded-full glass hover:bg-white/20 transition-colors z-10"
             >
-              <ChevronRight className="w-8 h-8 text-white" />
+              {direction === 'rtl' ? (
+                <ChevronLeft className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+              ) : (
+                <ChevronRight className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+              )}
             </button>
 
             {/* Main Image */}
@@ -642,7 +666,7 @@ export default function ProjectDetailClient({
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="max-w-5xl max-h-[80vh] mx-4"
+              className="max-w-full max-h-[70vh] sm:max-h-[80vh] w-full"
               onClick={(e) => e.stopPropagation()}
             >
               <img
@@ -652,17 +676,17 @@ export default function ProjectDetailClient({
               />
             </motion.div>
 
-            {/* Thumbnails */}
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
+            <div className="absolute bottom-4 sm:bottom-6 inset-x-0 flex justify-center gap-1.5 px-4 overflow-x-auto">
               {viewModel.images.map((img, index) => (
                 <button
                   key={index}
+                  type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     setCurrentImage(index);
                   }}
-                  className={`w-16 h-16 rounded-lg overflow-hidden transition-all ${
-                    currentImage === index ? 'ring-2 ring-gold-500 scale-110' : 'opacity-50 hover:opacity-100'
+                  className={`shrink-0 w-12 h-12 sm:w-16 sm:h-16 rounded-lg overflow-hidden transition-all ${
+                    currentImage === index ? 'ring-2 ring-gold-500 scale-105' : 'opacity-50 hover:opacity-100'
                   }`}
                 >
                   <img src={img} alt="" className="w-full h-full object-cover" />
@@ -670,8 +694,7 @@ export default function ProjectDetailClient({
               ))}
             </div>
 
-            {/* Counter */}
-            <div className="absolute bottom-6 right-6 px-4 py-2 glass rounded-xl text-white">
+            <div className="absolute bottom-4 end-4 sm:bottom-6 sm:end-6 px-3 py-1.5 glass rounded-xl text-white text-sm">
               {currentImage + 1} / {viewModel.images.length}
             </div>
           </motion.div>

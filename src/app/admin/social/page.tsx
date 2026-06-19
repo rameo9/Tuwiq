@@ -2,30 +2,12 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { Save, Plus, Trash2, GripVertical, Globe, Loader2 } from 'lucide-react';
 import {
-  Save,
-  Plus,
-  Trash2,
-  GripVertical,
-  Facebook,
-  Twitter,
-  Instagram,
-  Linkedin,
-  Youtube,
-  MessageCircle,
-  Globe,
-  Loader2,
-} from 'lucide-react';
-
-const socialIcons: Record<string, React.ComponentType<{ className?: string }>> = {
-  facebook: Facebook,
-  twitter: Twitter,
-  instagram: Instagram,
-  linkedin: Linkedin,
-  youtube: Youtube,
-  whatsapp: MessageCircle,
-  website: Globe,
-};
+  SOCIAL_PLATFORM_LABELS,
+  socialIconMap,
+  getSocialHref,
+} from '@/lib/social';
 
 type ApiSocialRow = {
   id: number;
@@ -48,15 +30,7 @@ export default function AdminSocial() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  const platformLabels: Record<string, { ar: string; en: string }> = {
-    facebook: { ar: 'فيسبوك', en: 'Facebook' },
-    twitter: { ar: 'تويتر', en: 'Twitter' },
-    instagram: { ar: 'انستغرام', en: 'Instagram' },
-    linkedin: { ar: 'لينكد إن', en: 'LinkedIn' },
-    youtube: { ar: 'يوتيوب', en: 'YouTube' },
-    whatsapp: { ar: 'واتساب', en: 'WhatsApp' },
-    website: { ar: 'الموقع', en: 'Website' },
-  };
+  const platformLabels = SOCIAL_PLATFORM_LABELS;
 
   const load = async () => {
     const [sRes, siteRes] = await Promise.all([
@@ -195,7 +169,7 @@ export default function AdminSocial() {
 
             <div className="space-y-3">
               {rows.map((link, index) => {
-                const Icon = socialIcons[link.platform] || Globe;
+                const Icon = socialIconMap[link.platform] || Globe;
                 return (
                   <motion.div
                     key={link.key}
@@ -286,11 +260,8 @@ export default function AdminSocial() {
               {rows
                 .filter((link) => link.enabled && link.url.trim())
                 .map((link) => {
-                  const Icon = socialIcons[link.platform] || Globe;
-                  const href =
-                    link.platform === 'whatsapp'
-                      ? `https://wa.me/${link.url.replace(/\D/g, '')}`
-                      : link.url;
+                  const Icon = socialIconMap[link.platform] || Globe;
+                  const href = getSocialHref(link.platform, link.url);
                   return (
                     <motion.a
                       key={link.key}
