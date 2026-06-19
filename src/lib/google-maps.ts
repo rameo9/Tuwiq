@@ -98,3 +98,30 @@ export function toOpenStreetMapEmbedUrl(lat: number, lon: number): string {
 function embedFromCoords(lat: string, lng: string) {
   return `https://www.google.com/maps?q=${lat},${lng}&hl=ar&z=15&output=embed`;
 }
+
+export function extractCoordsFromGoogleMaps(
+  input: string | undefined | null,
+): { lat: number; lon: number } | null {
+  const raw = String(input ?? '');
+  const patterns = [
+    /@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/,
+    /!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/,
+    /[?&]q=(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/,
+    /center=(-?\d+(?:\.\d+)?)[,%2C](-?\d+(?:\.\d+)?)/i,
+    /[?&]ll=(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/,
+  ];
+
+  for (const re of patterns) {
+    const m = raw.match(re);
+    if (m) {
+      const lat = Number(m[1]);
+      const lon = Number(m[2]);
+      if (Number.isFinite(lat) && Number.isFinite(lon)) return { lat, lon };
+    }
+  }
+  return null;
+}
+
+export function embedUrlFromCoords(lat: number, lon: number): string {
+  return embedFromCoords(String(lat), String(lon));
+}

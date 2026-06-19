@@ -1,9 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server';
+import {
+  embedUrlFromCoords,
+  extractCoordsFromGoogleMaps,
+  getGoogleMapsEmbedUrl,
+} from '@/lib/google-maps';
 
 const SHORT_MAPS =
   /^(https?:\/\/)?(maps\.app\.goo\.gl|goo\.gl\/maps|maps\.google\.com\/\?)/i;
 
-/** Follow redirects for shortened Google Maps links and return the final URL. */
+function extractCoordsFromHtml(html: string): { lat: number; lon: number } | null {
+  const patterns = [
+    /\[null,null,(-?\d+\.\d+),(-?\d+\.\d+)\]/,
+    /"@(-?\d+\.\d+),(-?\d+\.\d+)"/,
+    /!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/,
+    /@(-?\d+\.\d+),(-?\d+\.\d+)/,
+  ];
+
+  for (const re of patterns) {
+    const m = html.match(re);
+    if (m) {
+      const lat = Number(m[1]);
+      const lon = Number(m[2]);
+      if (Number.isFinite(lat) && Number.isFinite(lon)) return { lat, lon };
+    }
+  }
+  return null;
+}
+
+/** Follow redirects for shortened Google Maps links and return embed-ready data. */
 export async function GET(req: NextRequest) {
   const url = req.nextUrl.searchParams.get('url')?.trim();
   if (!url) {
@@ -40,9 +64,22 @@ export async function GET(req: NextRequest) {
       next: { revalidate: 86400 },
     });
 
+    const finalUrl = res.url || parsed.toString();
+    const html = await res.text();
+    const combined = `${finalUrl}\n${html}`;
+
+    let coords = extractCoordsFromGoogleMaps(finalUrl) ?? extractCoordsFromGoogleMaps(combined);
+    if (!coords) coords = extractCoordsFromHtml(html);
+
+    const embedFromParse = getGoogleMapsEmbedUrl(finalUrl) ?? getGoogleMapsEmbedUrl(combined);
+    const embedUrl =
+      embedFromParse ?? (coords ? embedUrlFromCoords(coords.lat, coords.lon) : null);
+
     return NextResponse.json({
-      url: res.url || parsed.toString(),
+      url: finalUrl,
       short: SHORT_MAPS.test(url),
+      ...(coords ? { lat: coords.lat, lon: coords.lon } : {}),
+      ...(embedUrl ? { embedUrl } : {}),
     });
   } catch {
     return NextResponse.json({ error: 'Resolve failed' }, { status: 502 });

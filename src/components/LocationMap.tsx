@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import { ExternalLink, Loader2, MapPin } from 'lucide-react';
 import {
+  embedUrlFromCoords,
+  extractCoordsFromGoogleMaps,
   getGoogleMapsEmbedUrl,
   isGoogleMapsLink,
   isShortGoogleMapsUrl,
@@ -11,27 +13,44 @@ import {
   toOpenStreetMapEmbedUrl,
 } from '@/lib/google-maps';
 
-async function resolveGoogleMapsUrl(input: string): Promise<string> {
+type MapsResolveResult = {
+  url?: string;
+  lat?: number;
+  lon?: number;
+  embedUrl?: string;
+};
+
+async function resolveGoogleMaps(input: string): Promise<MapsResolveResult> {
   const raw = input.trim();
-  if (!raw) return raw;
+  if (!raw) return { url: raw };
+
+  const directEmbed = getGoogleMapsEmbedUrl(raw);
+  const directCoords = extractCoordsFromGoogleMaps(raw);
+  if (directEmbed || directCoords) {
+    return {
+      url: raw,
+      ...(directCoords ?? {}),
+      embedUrl: directEmbed ?? (directCoords ? embedUrlFromCoords(directCoords.lat, directCoords.lon) : undefined),
+    };
+  }
 
   const needsResolve =
     isShortGoogleMapsUrl(raw) ||
-    (looksLikeHttpUrl(raw) && isGoogleMapsLink(raw) && !getGoogleMapsEmbedUrl(raw));
+    (looksLikeHttpUrl(raw) && isGoogleMapsLink(raw));
 
-  if (!needsResolve) return raw;
+  if (!needsResolve) return { url: raw };
 
   try {
     const res = await fetch(`/api/maps-resolve?url=${encodeURIComponent(raw)}`);
     if (res.ok) {
-      const data = (await res.json()) as { url?: string };
-      if (data.url?.trim()) return data.url.trim();
+      const data = (await res.json()) as MapsResolveResult;
+      return { url: data.url?.trim() || raw, ...data };
     }
   } catch {
     /* keep original */
   }
 
-  return raw;
+  return { url: raw };
 }
 
 type LocationMapProps = {
@@ -55,8 +74,6 @@ export default function LocationMap({
   const [loading, setLoading] = useState(true);
   const [resolvedOpenUrl, setResolvedOpenUrl] = useState<string | null>(null);
 
-  const rawOpenUrl = toGoogleMapsOpenUrl(mapUrl?.trim() || query);
-
   useEffect(() => {
     let cancelled = false;
 
@@ -65,15 +82,28 @@ export default function LocationMap({
       setEmbedSrc(null);
       setResolvedOpenUrl(null);
 
-      const candidates = [mapUrl?.trim(), query.trim()].filter(Boolean) as string[];
+      const mapCandidate = mapUrl?.trim() ?? '';
+      const textQuery = query.trim();
+      const urlCandidates = [mapCandidate].filter(Boolean);
+      if (textQuery && looksLikeHttpUrl(textQuery) && isGoogleMapsLink(textQuery)) {
+        urlCandidates.push(textQuery);
+      }
 
-      for (const candidate of candidates) {
-        const resolved = await resolveGoogleMapsUrl(candidate);
-        if (!cancelled && isGoogleMapsLink(resolved)) {
-          setResolvedOpenUrl(toGoogleMapsOpenUrl(resolved));
+      for (const candidate of urlCandidates) {
+        const resolved = await resolveGoogleMaps(candidate);
+        const finalUrl = resolved.url ?? candidate;
+
+        if (!cancelled && isGoogleMapsLink(finalUrl)) {
+          setResolvedOpenUrl(toGoogleMapsOpenUrl(finalUrl));
         }
 
-        const embed = getGoogleMapsEmbedUrl(resolved) ?? getGoogleMapsEmbedUrl(candidate);
+        const embed =
+          resolved.embedUrl ??
+          getGoogleMapsEmbedUrl(finalUrl) ??
+          (resolved.lat != null && resolved.lon != null
+            ? embedUrlFromCoords(resolved.lat, resolved.lon)
+            : null);
+
         if (embed) {
           if (!cancelled) {
             setEmbedSrc(embed);
@@ -83,14 +113,21 @@ export default function LocationMap({
         }
       }
 
-      const label = query.trim();
-      if (label && !looksLikeHttpUrl(label) && !isGoogleMapsLink(label)) {
+      const geocodeLabel =
+        textQuery && !looksLikeHttpUrl(textQuery) && !isGoogleMapsLink(textQuery)
+          ? textQuery
+          : '';
+
+      if (geocodeLabel) {
         try {
-          const res = await fetch(`/api/geocode?q=${encodeURIComponent(label)}`);
+          const res = await fetch(`/api/geocode?q=${encodeURIComponent(geocodeLabel)}`);
           if (res.ok) {
             const data = (await res.json()) as { lat: number; lon: number };
             if (!cancelled) {
               setEmbedSrc(toOpenStreetMapEmbedUrl(data.lat, data.lon));
+              setResolvedOpenUrl(
+                `https://www.google.com/maps/search/?api=1&query=${data.lat},${data.lon}`,
+              );
             }
           }
         } catch {
@@ -106,9 +143,15 @@ export default function LocationMap({
     };
   }, [mapUrl, query]);
 
-  const openUrl = resolvedOpenUrl ?? rawOpenUrl;
+  const openUrl =
+    resolvedOpenUrl ??
+    toGoogleMapsOpenUrl(mapUrl?.trim() || query) ??
+    (query && !looksLikeHttpUrl(query) ? toGoogleMapsOpenUrl(query) : null);
+
   const fallbackLabel =
-    looksLikeHttpUrl(query) || isGoogleMapsLink(query) ? mapPromptLabel : query;
+    looksLikeHttpUrl(query) || isGoogleMapsLink(query)
+      ? mapPromptLabel
+      : query || mapPromptLabel;
 
   if (loading) {
     return (

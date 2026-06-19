@@ -31,6 +31,7 @@ import type { LandingPayload, SitePayload } from '@/lib/cms-read';
 import type { SerializedProject } from '@/types/project-detail';
 import LocationMap from '@/components/LocationMap';
 import { shareProjectLink, shareSubtitleFromLocation } from '@/lib/share-project';
+import { pickProjectMapQuery, pickProjectMapUrl } from '@/lib/project-map';
 import { ensureShareMetaTags, toAbsoluteClientUrl } from '@/lib/ensure-share-meta';
 import { normalizeMediaUrl } from '@/lib/normalize-media-url';
 
@@ -120,6 +121,12 @@ export default function ProjectDetailClient({
     ensureShareMetaTags({ title, description, url: pageUrl, imageUrl });
   }, [project.id, project.mainImageUrl, language, viewModel.title, viewModel.description]);
 
+  const projectMapUrl = useMemo(() => pickProjectMapUrl(project), [project]);
+  const projectMapQuery = useMemo(
+    () => pickProjectMapQuery(project, language),
+    [project, language],
+  );
+
   const handleShare = async () => {
     const url = window.location.href;
     const title = viewModel.title[language];
@@ -134,6 +141,9 @@ export default function ProjectDetailClient({
 
     if (result === 'copied') {
       setShareNotice(language === 'ar' ? 'تم نسخ الرابط' : 'Link copied');
+      window.setTimeout(() => setShareNotice(''), 2500);
+    } else if (result === 'shared') {
+      setShareNotice(language === 'ar' ? 'تمت المشاركة' : 'Shared');
       window.setTimeout(() => setShareNotice(''), 2500);
     }
   };
@@ -548,7 +558,7 @@ export default function ProjectDetailClient({
               </motion.div>
               ) : null}
 
-              {/* Location Map */}
+              {(projectMapUrl || projectMapQuery) ? (
               <motion.div
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -559,8 +569,8 @@ export default function ProjectDetailClient({
                   {language === 'ar' ? 'موقع المشروع' : 'Project Location'}
                 </h2>
                 <LocationMap
-                  mapUrl={project.mapUrl ?? site.mapUrl}
-                  query={viewModel.location[language]}
+                  mapUrl={projectMapUrl}
+                  query={projectMapQuery}
                   openLabel={
                     language === 'ar' ? 'فتح في Google Maps' : 'Open in Google Maps'
                   }
@@ -572,6 +582,7 @@ export default function ProjectDetailClient({
                   }
                 />
               </motion.div>
+              ) : null}
             </div>
 
             {/* Sidebar */}

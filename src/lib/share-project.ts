@@ -43,44 +43,6 @@ function isMobileShare(): boolean {
   );
 }
 
-function isIos(): boolean {
-  if (typeof navigator === 'undefined') return false;
-  return (
-    /iPhone|iPad|iPod/i.test(navigator.userAgent) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
-  );
-}
-
-/** iOS share sheet reads attached files for the preview thumbnail. */
-async function tryIosImageShare(
-  url: string,
-  title: string,
-  imageUrl: string,
-): Promise<boolean> {
-  if (!isIos() || !imageUrl || typeof navigator.share !== 'function') return false;
-
-  try {
-    const res = await fetch(imageUrl);
-    if (!res.ok) return false;
-
-    const blob = await res.blob();
-    if (!blob.type.startsWith('image/')) return false;
-
-    const ext = blob.type.includes('png') ? 'png' : 'jpg';
-    const file = new File([blob], `tuwaiq-project.${ext}`, { type: blob.type });
-    const data: ShareData = { files: [file], url, title };
-
-    if (!navigator.canShare || navigator.canShare(data)) {
-      await navigator.share(data);
-      return true;
-    }
-  } catch (e) {
-    if (e instanceof Error && e.name === 'AbortError') throw e;
-  }
-
-  return false;
-}
-
 function primeShareMeta(payload: ProjectSharePayload) {
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
   const imageUrl = payload.imageUrl
@@ -95,9 +57,20 @@ function primeShareMeta(payload: ProjectSharePayload) {
   });
 }
 
+async function tryNativeShare(data: ShareData): Promise<boolean> {
+  if (typeof navigator.share !== 'function') return false;
+  try {
+    if (navigator.canShare && !navigator.canShare(data)) return false;
+    await navigator.share(data);
+    return true;
+  } catch (e) {
+    if (e instanceof Error && e.name === 'AbortError') throw e;
+    return false;
+  }
+}
+
 /**
- * Shares project link. Image preview comes from Open Graph when the recipient
- * app loads the URL. On mobile, share URL only so iOS/Android fetch OG tags.
+ * Shares project link. On mobile tries several Web Share payloads, then copies URL.
  */
 export async function shareProjectLink(
   payload: ProjectSharePayload,
@@ -105,53 +78,25 @@ export async function shareProjectLink(
   const title = payload.title.trim();
   const url = payload.url.trim();
   const shareText = buildShareText(title, payload.text);
-  const origin = typeof window !== 'undefined' ? window.location.origin : '';
-  const imageUrl = payload.imageUrl
-    ? toAbsoluteClientUrl(payload.imageUrl, origin) || payload.imageUrl
-    : '';
 
-  primeShareMeta({ ...payload, title, url, imageUrl });
+  primeShareMeta({ ...payload, title, url });
 
   if (typeof navigator.share === 'function') {
-    if (isMobileShare()) {
-      if (imageUrl) {
-        try {
-          const sharedWithImage = await tryIosImageShare(url, title, imageUrl);
-          if (sharedWithImage) return 'shared';
-        } catch (e) {
-          if (e instanceof Error && e.name === 'AbortError') return 'cancelled';
-        }
-      }
+    const attempts: ShareData[] = isMobileShare()
+      ? [{ title, url }, { url }, { title, text: shareText, url }]
+      : [{ title, text: shareText, url }, { title, url }, { url }];
 
+    for (const data of attempts) {
       try {
-        await navigator.share({ url });
-        return 'shared';
+        if (await tryNativeShare(data)) return 'shared';
       } catch (e) {
         if (e instanceof Error && e.name === 'AbortError') return 'cancelled';
       }
     }
-
-    const shareData: ShareData = { title, text: shareText, url };
-
-    try {
-      if (!navigator.canShare || navigator.canShare(shareData)) {
-        await navigator.share(shareData);
-        return 'shared';
-      }
-    } catch (e) {
-      if (e instanceof Error && e.name === 'AbortError') return 'cancelled';
-    }
-
-    try {
-      await navigator.share({ url });
-      return 'shared';
-    } catch (e) {
-      if (e instanceof Error && e.name === 'AbortError') return 'cancelled';
-    }
   }
 
   try {
-    await navigator.clipboard.writeText(isMobileShare() ? url : `${shareText}\n${url}`);
+    await navigator.clipboard.writeText(url);
     return 'copied';
   } catch {
     window.prompt('Copy link:', url);
