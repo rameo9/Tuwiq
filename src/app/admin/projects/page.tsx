@@ -493,6 +493,7 @@ export default function AdminProjects() {
                           category: { ...prev.category, ar: e.target.value },
                         }))
                       }
+                      placeholder="مثل: A+ أو سكني"
                       className="w-full px-4 py-3 bg-dark-800 border border-dark-700 rounded-xl text-white"
                     />
                   </div>
@@ -507,6 +508,7 @@ export default function AdminProjects() {
                           category: { ...prev.category, en: e.target.value },
                         }))
                       }
+                      placeholder="e.g. A+ or Residential"
                       className="w-full px-4 py-3 bg-dark-800 border border-dark-700 rounded-xl text-white"
                     />
                   </div>

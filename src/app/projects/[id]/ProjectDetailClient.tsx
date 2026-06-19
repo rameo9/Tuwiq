@@ -86,6 +86,7 @@ export default function ProjectDetailClient({
     const title = { ar: project.titleAr, en: project.titleEn };
     const description = { ar: project.descriptionAr, en: project.descriptionEn };
     const location = { ar: project.locationAr, en: project.locationEn };
+    const category = { ar: project.categoryAr, en: project.categoryEn };
     const status = { ar: project.status, en: project.status };
     const features = project.features.map((f) => ({ ar: f.textAr, en: f.textEn }));
     return {
@@ -93,6 +94,7 @@ export default function ProjectDetailClient({
       title,
       description,
       location,
+      category,
       area: project.area,
       units: project.units,
       completionDate: project.completionYear.trim() || '—',
@@ -444,7 +446,7 @@ export default function ProjectDetailClient({
                         { icon: Maximize, value: viewModel.area, label: t('common.sqm') },
                         { icon: Home, value: viewModel.units, label: language === 'ar' ? 'وحدة' : 'Units' },
                         { icon: Calendar, value: viewModel.completionDate, label: language === 'ar' ? 'التسليم' : 'Completion' },
-                        { icon: Star, value: 'A+', label: language === 'ar' ? 'التصنيف' : 'Rating' },
+                        { icon: Star, value: viewModel.category[language] || '—', label: language === 'ar' ? 'التصنيف' : 'Rating' },
                       ].map((stat, index) => (
                         <motion.div
                           key={index}
@@ -607,7 +609,7 @@ export default function ProjectDetailClient({
                   </motion.a>
                 ) : (
                   <div className="w-full py-4 px-6 rounded-xl bg-dark-800/60 text-dark-400 text-sm text-center border border-dark-700">
-                    {language === 'ar' ? 'سيتم إضافة الكتيب قريباً' : 'Brochure coming soon'}
+                    {language === 'ar' ? 'قريباً' : 'Coming soon'}
                   </div>
                 )}
 
