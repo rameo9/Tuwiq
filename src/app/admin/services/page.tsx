@@ -17,6 +17,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { uploadAdminFile } from '@/lib/client-upload';
+import { normalizeMediaUrl } from '@/lib/normalize-media-url';
 
 type ApiService = {
   id: number;
@@ -108,7 +109,7 @@ export default function AdminServices() {
         iconId: service.iconId,
         title: { ...service.title },
         description: { ...service.description },
-        imageUrl: service.imageUrl,
+        imageUrl: normalizeMediaUrl(service.imageUrl),
         enabled: service.enabled,
       });
     } else {
@@ -134,10 +135,11 @@ export default function AdminServices() {
       window.alert('عنوان الخدمة بالعربية والإنجليزية مطلوب');
       return;
     }
-    const imageUrl =
+    const imageUrl = normalizeMediaUrl(
       formData.imageUrl.trim() ||
-      (editingService?.imageUrl ?? '').trim() ||
-      'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&q=80';
+        (editingService?.imageUrl ?? '').trim() ||
+        'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&q=80',
+    );
     setSavingId('modal');
     try {
       const body = {
@@ -383,7 +385,7 @@ export default function AdminServices() {
                       setImageUploadBusy(true);
                       try {
                         const url = await uploadFile(file);
-                        setFormData((prev) => ({ ...prev, imageUrl: url }));
+                        setFormData((prev) => ({ ...prev, imageUrl: normalizeMediaUrl(url) }));
                       } catch (err) {
                         window.alert(err instanceof Error ? err.message : 'فشل الرفع');
                       } finally {
@@ -394,7 +396,7 @@ export default function AdminServices() {
                   {formData.imageUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
-                      src={formData.imageUrl}
+                      src={normalizeMediaUrl(formData.imageUrl)}
                       alt=""
                       className="w-full max-h-40 object-cover rounded-xl border border-dark-700 mb-3"
                     />
@@ -402,10 +404,18 @@ export default function AdminServices() {
                   <input
                     type="url"
                     value={formData.imageUrl}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, imageUrl: e.target.value }))}
-                    placeholder="https://... أو ارفع صورة أدناه"
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        imageUrl: normalizeMediaUrl(e.target.value),
+                      }))
+                    }
+                    placeholder="/uploads/... أو https://..."
                     className="w-full px-4 py-3 bg-dark-800 border border-dark-700 rounded-xl text-white mb-2"
                   />
+                  <p className="text-dark-500 text-xs mb-2">
+                    الصور الكبيرة تُضغَّط تلقائياً قبل الرفع. الحد ~15 MB.
+                  </p>
                   <button
                     type="button"
                     disabled={imageUploadBusy}
@@ -483,7 +493,7 @@ export default function AdminServices() {
                 </button>
                 <motion.button
                   type="button"
-                  disabled={savingId === 'modal'}
+                  disabled={savingId === 'modal' || imageUploadBusy}
                   onClick={() => void handleSaveService()}
                   className="flex-1 py-3 rounded-xl bg-gradient-to-r from-gold-500 to-gold-600 text-dark-900 font-bold flex items-center justify-center gap-2 disabled:opacity-60"
                   whileHover={{ scale: 1.02 }}
