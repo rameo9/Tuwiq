@@ -2,10 +2,16 @@ import type { NextRequest } from 'next/server';
 
 export function getClientIp(req: NextRequest | Request): string {
   const headers = req.headers;
-  const forwarded = headers.get('x-forwarded-for')?.split(',')[0]?.trim();
-  if (forwarded) return forwarded;
+
+  const cf = headers.get('cf-connecting-ip')?.trim();
+  if (cf) return cf;
+
   const real = headers.get('x-real-ip')?.trim();
-  if (real) return real;
+  if (real && !isPrivateIp(real)) return real;
+
+  const forwarded = headers.get('x-forwarded-for')?.split(',')[0]?.trim();
+  if (forwarded && !isPrivateIp(forwarded)) return forwarded;
+
   return '';
 }
 
@@ -41,16 +47,33 @@ async function lookupCountryByIp(ip: string): Promise<string | null> {
       signal: AbortSignal.timeout(5000),
       next: { revalidate: 86400 },
     });
-    if (!res.ok) return null;
-
-    const data = (await res.json()) as { success?: boolean; country_code?: string };
-    if (data.success && data.country_code) {
-      const country = data.country_code.toUpperCase();
-      geoCache.set(ip, { country, at: Date.now() });
-      return country;
+    if (res.ok) {
+      const data = (await res.json()) as { success?: boolean; country_code?: string };
+      if (data.success && data.country_code) {
+        const country = data.country_code.toUpperCase();
+        geoCache.set(ip, { country, at: Date.now() });
+        return country;
+      }
     }
   } catch {
-    /* fallback below */
+    /* try fallback */
+  }
+
+  try {
+    const res = await fetch(
+      `http://ip-api.com/json/${encodeURIComponent(ip)}?fields=countryCode`,
+      { signal: AbortSignal.timeout(5000) },
+    );
+    if (res.ok) {
+      const data = (await res.json()) as { countryCode?: string };
+      if (data.countryCode) {
+        const country = data.countryCode.toUpperCase();
+        geoCache.set(ip, { country, at: Date.now() });
+        return country;
+      }
+    }
+  } catch {
+    /* no geo */
   }
 
   return null;
