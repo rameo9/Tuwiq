@@ -3,7 +3,7 @@ import nextDynamic from 'next/dynamic';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { getPublicHomeBundle } from '@/lib/cms-read';
-import { toAbsoluteUrl, getSiteOrigin } from '@/lib/absolute-url';
+import { toAbsoluteUrl, getRequestOrigin } from '@/lib/absolute-url';
 import type { SerializedProject } from '@/types/project-detail';
 
 export const dynamic = 'force-dynamic';
@@ -28,10 +28,12 @@ export async function generateMetadata({
     project.descriptionAr.trim() ||
     project.descriptionEn.trim() ||
     `${project.locationAr} — ${project.locationEn}`;
-  const pageUrl = `${getSiteOrigin()}/projects/${id}`;
-  const imageUrl = toAbsoluteUrl(project.mainImageUrl);
+  const origin = getRequestOrigin();
+  const pageUrl = `${origin}/projects/${id}`;
+  const imageUrl = toAbsoluteUrl(project.mainImageUrl, origin);
 
   return {
+    metadataBase: new URL(origin),
     title,
     description,
     alternates: { canonical: pageUrl },
@@ -47,6 +49,7 @@ export async function generateMetadata({
             images: [
               {
                 url: imageUrl,
+                secureUrl: imageUrl.startsWith('https://') ? imageUrl : undefined,
                 width: 1200,
                 height: 630,
                 alt: project.titleAr,

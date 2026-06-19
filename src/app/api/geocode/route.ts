@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
       `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(q)}`,
       {
         headers: {
-          'User-Agent': 'TuwaiqRealEstate/1.0 (https://tuwaiqdev.net)',
+          'User-Agent': 'TuwaiqRealEstate/1.0 (https://tuwaiqapex.com)',
           Accept: 'application/json',
         },
         next: { revalidate: 86400 },

@@ -121,6 +121,58 @@ client_max_body_size 25m;
 
 بعد ذلك جرّب الرفع مرة أخرى أو قلّل حجم الصورة قبل الرفع.
 
+### ربط دومين جديد (مثل `tuwaiqapex.com`)
+
+1. **DNS:** سجل A للـ `@` → IP السيرفر، و CNAME لـ `www` → `@` (كما في لوحة الدومين).
+2. **Nginx** — عدّل `server_name` وفعّل HTTPS:
+
+```nginx
+server {
+    listen 80;
+    server_name tuwaiqapex.com www.tuwaiqapex.com;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name tuwaiqapex.com www.tuwaiqapex.com;
+
+    client_max_body_size 25m;
+
+    ssl_certificate     /etc/letsencrypt/live/tuwaiqapex.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/tuwaiqapex.com/privkey.pem;
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+3. **شهادة SSL:**
+```bash
+sudo certbot --nginx -d tuwaiqapex.com -d www.tuwaiqapex.com
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+4. **`.env` على السيرفر:**
+```env
+NEXT_PUBLIC_SITE_URL="https://tuwaiqapex.com"
+```
+
+5. **إعادة البناء:**
+```bash
+cd /var/www/saqraljazera
+npm run build
+pm2 restart tuwiq --update-env
+```
+
+انتظر 5–30 دقيقة بعد تعديل DNS حتى ينتشر التوجيه، ثم جرّب `https://tuwaiqapex.com`.
+
 
 ## الرخصة
 

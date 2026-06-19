@@ -106,10 +106,9 @@ export default function ProjectDetailClient({
   const handleShare = async () => {
     const url = window.location.href;
     const title = viewModel.title[language];
-    const text = `${title} — ${viewModel.location[language]}`;
-    const mainImage = project.mainImageUrl || viewModel.images[0] || '';
+    const text = viewModel.location[language];
 
-    const result = await shareProjectLink({ title, text, url }, mainImage);
+    const result = await shareProjectLink({ title, text, url });
 
     if (result === 'copied') {
       setShareNotice(language === 'ar' ? 'تم نسخ الرابط' : 'Link copied');
