@@ -21,6 +21,7 @@ export const defaultLanding = {
       { value: '500+', label: { ar: 'عميل راضٍ', en: 'Happy Clients' } },
       { value: '15+', label: { ar: 'سنوات خبرة', en: 'Years Experience' } },
     ],
+    showStats: true,
   },
   about: {
     subtitle: { ar: 'تعرف علينا', en: 'Get to Know Us' },
@@ -73,7 +74,7 @@ export const defaultSite = {
     ar: 'نقدم لكم أفضل المشاريع العقارية الفاخرة',
     en: 'We offer you the finest luxury real estate projects',
   },
-  logo: '',
+  logo: '/logo-tuwaiq.png',
   favicon: '',
   email: 'info@saqraljazera.com',
   phone: '+966 55 123 4567',

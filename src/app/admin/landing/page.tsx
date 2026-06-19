@@ -426,8 +426,19 @@ export default function AdminLanding() {
 
               {/* Hero Stats */}
               <div className="bg-dark-900 rounded-2xl border border-dark-800 p-6 space-y-4">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-4 flex-wrap">
                   <h2 className="text-lg font-bold text-white">الإحصائيات</h2>
+                  <label className="flex items-center gap-2 text-sm text-dark-300 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={heroData.showStats !== false}
+                      onChange={(e) =>
+                        setHeroData((prev) => ({ ...prev, showStats: e.target.checked }))
+                      }
+                      className="rounded border-dark-600 bg-dark-800 text-gold-500 focus:ring-gold-500/40"
+                    />
+                    إظهار الإحصائيات في الموقع
+                  </label>
                   <button
                     type="button"
                     className="flex items-center gap-2 text-gold-400 text-sm font-medium"

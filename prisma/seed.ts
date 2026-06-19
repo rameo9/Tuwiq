@@ -78,7 +78,7 @@ const siteSettingsJson = {
     ar: 'نقدم لكم أفضل المشاريع العقارية الفاخرة',
     en: 'We offer you the finest luxury real estate projects',
   },
-  logo: '',
+  logo: '/logo-tuwaiq.png',
   favicon: '',
   email: 'info@saqraljazera.com',
   phone: '+966 55 123 4567',

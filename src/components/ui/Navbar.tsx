@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Menu, X, Sun, Moon, Globe } from 'lucide-react';
-import Link from 'next/link';
+import SiteLogo from '@/components/ui/SiteLogo';
 
 const navItems = [
   { key: 'nav.home', href: '#home' },
@@ -18,8 +18,10 @@ const navItems = [
 
 export default function Navbar({
   siteName,
+  logo,
 }: {
   siteName?: { ar: string; en: string };
+  logo?: string;
 }) {
   const { language, setLanguage, t, direction } = useLanguage();
   const { theme, toggleTheme } = useTheme();
@@ -75,23 +77,7 @@ export default function Navbar({
             whileTap={{ scale: 0.95 }}
             className="relative z-10"
           >
-            <Link href="/" className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center">
-                <span className="text-dark-900 font-bold text-xl">ص</span>
-              </div>
-              <div className="hidden sm:block">
-                <h1 className="text-lg font-bold text-gradient">
-                  {siteName
-                    ? siteName[language]
-                    : language === 'ar'
-                      ? 'صقر الجزيرة'
-                      : 'Saqr Al Jazera'}
-                </h1>
-                <p className="text-xs text-slate-600 dark:text-dark-400">
-                  {language === 'ar' ? 'للتطوير العقاري' : 'Real Estate'}
-                </p>
-              </div>
-            </Link>
+            <SiteLogo logo={logo} siteName={siteName} language={language} />
           </motion.div>
 
           {/* Desktop Navigation */}

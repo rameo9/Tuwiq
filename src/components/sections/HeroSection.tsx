@@ -36,6 +36,7 @@ export default function HeroSection({ hero }: { hero: LandingPayload['hero'] }) 
   const [currentImage, setCurrentImage] = useState(0);
   const [videoOpen, setVideoOpen] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [statsHidden, setStatsHidden] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
   const videoSource = parseHeroVideoUrl(hero.videoUrl);
   const { scrollY } = useScroll();
@@ -71,6 +72,14 @@ export default function HeroSection({ hero }: { hero: LandingPayload['hero'] }) 
   const yearsCounter = useCounter(py.n, 2000);
 
   useEffect(() => {
+    try {
+      setStatsHidden(localStorage.getItem('tuwaiq_hero_stats_hidden') === '1');
+    } catch {
+      /* private mode */
+    }
+  }, []);
+
+  useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImage((prev) => (prev + 1) % images.length);
     }, 5000);
@@ -96,6 +105,17 @@ export default function HeroSection({ hero }: { hero: LandingPayload['hero'] }) 
   const handleScroll = () => {
     document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  const dismissStats = () => {
+    setStatsHidden(true);
+    try {
+      localStorage.setItem('tuwaiq_hero_stats_hidden', '1');
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const showStatsBar = hero.showStats !== false && !statsHidden;
 
 
   return (
@@ -341,12 +361,22 @@ export default function HeroSection({ hero }: { hero: LandingPayload['hero'] }) 
             </motion.div>
 
             {/* Stats — in document flow (no overlap with buttons) */}
+            {showStatsBar ? (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
               transition={{ duration: 0.8, delay: 2.2 }}
-              className="max-w-xl mx-auto"
+              className="max-w-xl mx-auto relative"
             >
+              <button
+                type="button"
+                onClick={dismissStats}
+                aria-label={language === 'ar' ? 'إخفاء الإحصائيات' : 'Hide statistics'}
+                className="absolute -top-2 end-2 z-10 p-1.5 rounded-full bg-slate-900/70 text-slate-300 hover:text-white hover:bg-slate-800 border border-white/10 transition-colors"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
               <div className="glass rounded-2xl py-4 px-4 sm:py-5 sm:px-6" dir="ltr">
                 <div className="flex justify-between items-center gap-2">
                   <div ref={yearsCounter.ref} className="text-center flex-1 min-w-0">
@@ -376,6 +406,7 @@ export default function HeroSection({ hero }: { hero: LandingPayload['hero'] }) 
                 </div>
               </div>
             </motion.div>
+            ) : null}
           </div>
         </div>
 

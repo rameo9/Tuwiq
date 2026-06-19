@@ -136,7 +136,7 @@ export default function ProjectDetailClient({
 
   return (
     <main className="min-h-screen w-full max-w-[100vw] overflow-x-hidden bg-slate-100 text-slate-900 dark:bg-dark-950 dark:text-white">
-      <Navbar siteName={site.siteName} />
+      <Navbar siteName={site.siteName} logo={site.logo} />
 
       {/* Hero Image Gallery */}
       <section ref={heroRef} className="relative h-[52vh] min-h-[260px] sm:h-[65vh] md:h-[80vh] overflow-hidden">

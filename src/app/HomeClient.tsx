@@ -74,7 +74,7 @@ export default function HomeClient(props: HomeClientProps) {
       <GridBackground />
       <NoiseOverlay />
 
-      <Navbar siteName={props.site.siteName} />
+      <Navbar siteName={props.site.siteName} logo={props.site.logo} />
 
       <HeroSection hero={props.landing.hero} />
 
