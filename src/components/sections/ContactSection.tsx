@@ -41,10 +41,20 @@ export default function ContactSection({
   const sectionRef = useRef<HTMLElement>(null);
 
   const contactRows = [
-    { icon: MapPin, key: 'address', value: site.address },
-    { icon: Phone, key: 'phone', value: { ar: site.phone, en: site.phone } },
-    { icon: Mail, key: 'email', value: { ar: site.email, en: site.email } },
-    { icon: Clock, key: 'hours', value: site.workingHours },
+    { icon: MapPin, key: 'address', value: site.address, href: null as string | null },
+    {
+      icon: Phone,
+      key: 'phone',
+      value: { ar: site.phone, en: site.phone },
+      href: site.phone.trim() ? `tel:${site.phone.replace(/\s/g, '')}` : null,
+    },
+    {
+      icon: Mail,
+      key: 'email',
+      value: { ar: site.email, en: site.email },
+      href: site.email.trim() ? `mailto:${site.email.trim()}` : null,
+    },
+    { icon: Clock, key: 'hours', value: site.workingHours, href: null },
   ];
 
   const { scrollYProgress } = useScroll({
@@ -479,15 +489,28 @@ export default function ContactSection({
                            item.key === 'email' ? t('contact.email') : 
                            language === 'ar' ? 'ساعات العمل' : 'Working Hours'}
                         </p>
-                        <motion.p 
-                          className={`font-semibold ${
-                            hoveredInfo === item.key
-                              ? 'text-gold-500'
-                              : 'text-slate-900 dark:text-white'
-                          }`}
-                        >
-                          {item.value[language]}
-                        </motion.p>
+                        {item.href ? (
+                          <motion.a
+                            href={item.href}
+                            className={`font-semibold inline-block hover:text-gold-500 transition-colors ${
+                              hoveredInfo === item.key
+                                ? 'text-gold-500'
+                                : 'text-slate-900 dark:text-white'
+                            }`}
+                          >
+                            {item.value[language]}
+                          </motion.a>
+                        ) : (
+                          <motion.p
+                            className={`font-semibold ${
+                              hoveredInfo === item.key
+                                ? 'text-gold-500'
+                                : 'text-slate-900 dark:text-white'
+                            }`}
+                          >
+                            {item.value[language]}
+                          </motion.p>
+                        )}
                       </div>
                     </motion.div>
                   </Card3D>
