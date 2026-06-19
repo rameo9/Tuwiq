@@ -32,6 +32,8 @@ export default function AdminLanding() {
   const [heroVideoBusy, setHeroVideoBusy] = useState(false);
   const heroImageInputRef = useRef<HTMLInputElement>(null);
   const heroVideoInputRef = useRef<HTMLInputElement>(null);
+  const aboutImageInputRef = useRef<HTMLInputElement>(null);
+  const [aboutImageBusy, setAboutImageBusy] = useState(false);
   const [aboutData, setAboutData] = useState(() => clone(defaultLanding.about));
   const [footerData, setFooterData] = useState(() => clone(defaultLanding.footer));
 
@@ -56,6 +58,18 @@ export default function AdminLanding() {
       window.alert(e instanceof Error ? e.message : 'فشل رفع الفيديو.');
     } finally {
       setHeroVideoBusy(false);
+    }
+  };
+
+  const uploadAboutImage = async (file: File) => {
+    setAboutImageBusy(true);
+    try {
+      const url = await uploadAdminFile(file);
+      setAboutData((prev) => ({ ...prev, image: url }));
+    } catch (e) {
+      window.alert(e instanceof Error ? e.message : 'فشل رفع الصورة.');
+    } finally {
+      setAboutImageBusy(false);
     }
   };
 
@@ -544,16 +558,39 @@ export default function AdminLanding() {
                     <label className="block text-dark-300 text-sm font-medium mb-2">
                       صورة القسم
                     </label>
+                    <input
+                      ref={aboutImageInputRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={async (ev) => {
+                        const file = ev.target.files?.[0];
+                        ev.target.value = '';
+                        if (file) await uploadAboutImage(file);
+                      }}
+                    />
                     <div className="flex items-center gap-4">
-                      <img
-                        src={aboutData.image}
-                        alt=""
-                        className="w-32 h-32 object-cover rounded-xl"
-                      />
-                      <div className="flex-1 border-2 border-dashed border-dark-700 rounded-xl p-6 text-center">
+                      {aboutData.image ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={aboutData.image}
+                          alt=""
+                          className="w-32 h-32 object-cover rounded-xl shrink-0"
+                        />
+                      ) : (
+                        <div className="w-32 h-32 rounded-xl bg-dark-800 border border-dark-700 shrink-0" />
+                      )}
+                      <button
+                        type="button"
+                        disabled={aboutImageBusy}
+                        onClick={() => aboutImageInputRef.current?.click()}
+                        className="flex-1 border-2 border-dashed border-dark-700 rounded-xl p-6 text-center cursor-pointer hover:border-gold-500/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
                         <Upload className="w-8 h-8 text-dark-500 mx-auto mb-2" />
-                        <p className="text-dark-500 text-sm">تغيير الصورة</p>
-                      </div>
+                        <p className="text-dark-500 text-sm">
+                          {aboutImageBusy ? 'جاري الرفع...' : 'تغيير الصورة'}
+                        </p>
+                      </button>
                     </div>
                   </div>
                 </div>

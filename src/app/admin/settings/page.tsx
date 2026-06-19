@@ -468,16 +468,26 @@ export default function AdminSettings() {
                   </div>
                 </div>
 
-                {/* Google Maps Embed */}
+                {/* Google Maps */}
                 <div>
                   <label className="block text-dark-300 text-sm font-medium mb-2">
                     رابط خريطة Google Maps
                   </label>
                   <input
                     type="url"
-                    placeholder="https://www.google.com/maps/embed?..."
+                    value={settings.mapUrl}
+                    onChange={(e) =>
+                      patchSite((s) => ({
+                        ...s,
+                        mapUrl: e.target.value,
+                      }))
+                    }
+                    placeholder="رابط المشاركة أو Embed من Google Maps"
                     className="w-full px-4 py-3 bg-dark-800 border border-dark-700 rounded-xl text-white focus:outline-none focus:border-gold-500/50"
                   />
+                  <p className="text-dark-500 text-xs mt-2">
+                    الصق رابط «مشاركة» أو «تضمين» من Google Maps — يُحوَّل تلقائياً للخريطة في الموقع.
+                  </p>
                 </div>
               </div>
             </motion.div>

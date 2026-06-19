@@ -85,6 +85,7 @@ const siteSettingsJson = {
   whatsappNumber: '966551234567',
   address: { ar: 'الرياض، المملكة العربية السعودية', en: 'Riyadh, Saudi Arabia' },
   workingHours: { ar: 'السبت - الخميس: 9 ص - 6 م', en: 'Sat - Thu: 9 AM - 6 PM' },
+  mapUrl: '',
   defaultLanguage: 'ar',
   defaultTheme: 'dark',
   maintenanceMode: false,
