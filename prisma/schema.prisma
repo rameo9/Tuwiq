@@ -135,3 +135,47 @@ model MarketerClick {
   @@index([marketerId, country])
   @@index([marketerId, deviceType])
 }
+
+model CampaignLanding {
+  id            Int                   @id @default(autoincrement())
+  name          String
+  slug          String                @unique
+  titleAr       String
+  titleEn       String
+  descriptionAr String                @default("")
+  descriptionEn String                @default("")
+  enabled       Boolean               @default(true)
+  viewCount     Int                   @default(0)
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+  links         CampaignLandingLink[]
+}
+
+model CampaignLandingLink {
+  id         Int                        @id @default(autoincrement())
+  landingId  Int
+  landing    CampaignLanding            @relation(fields: [landingId], references: [id], onDelete: Cascade)
+  type       String
+  titleAr    String
+  titleEn    String
+  url        String                     @default("")
+  projectId  Int?
+  sortOrder  Int                        @default(0)
+  enabled    Boolean                    @default(true)
+  clicks     CampaignLandingLinkClick[]
+
+  @@index([landingId, sortOrder])
+}
+
+model CampaignLandingLinkClick {
+  id         Int                 @id @default(autoincrement())
+  linkId     Int
+  link       CampaignLandingLink @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  country    String              @default("Unknown")
+  deviceType String              @default("unknown")
+  userAgent  String              @default("")
+  createdAt  DateTime            @default(now())
+
+  @@index([linkId, createdAt])
+  @@index([linkId, country])
+}

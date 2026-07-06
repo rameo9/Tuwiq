@@ -23,6 +23,7 @@ import {
   slugifyMarketer,
   type DeviceType,
 } from '@/lib/marketer-utils';
+import MarketingTabs from '@/components/admin/MarketingTabs';
 
 type MarketerRow = {
   id: number;
@@ -176,11 +177,14 @@ export default function AdminMarketingPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-white">التسويق والمسوقين</h1>
-        <p className="text-dark-400 mt-1">
-          أنشئ رابطاً لكل مسوق — يُحسب كل زيارة عبر الرابط (الدولة ونوع الجهاز).
-        </p>
+      <div className="space-y-4">
+        <MarketingTabs />
+        <div>
+          <h1 className="text-2xl font-bold text-white">التسويق والمسوقين</h1>
+          <p className="text-dark-400 mt-1">
+            أنشئ رابطاً لكل مسوق — يُحسب كل زيارة عبر الرابط (الدولة ونوع الجهاز).
+          </p>
+        </div>
       </div>
 
       <div className="glass rounded-2xl border border-dark-800 p-6 space-y-4">
