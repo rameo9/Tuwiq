@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { verifyAdminSession } from '@/lib/api-auth';
+import { resolveClickSuspicious, splitClickCounts } from '@/lib/click-classify';
 import { normalizeMarketerSlug } from '@/lib/marketer-utils';
 
 type RouteCtx = { params: { id: string } };
@@ -26,7 +27,8 @@ export async function GET(_req: NextRequest, { params }: RouteCtx) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
 
-  const [byCountryRaw, byDeviceRaw, byPathRaw, recentClicks, projects] = await Promise.all([
+  const [byCountryRaw, byDeviceRaw, byPathRaw, recentClicksRaw, allClicks, projects] =
+    await Promise.all([
     prisma.marketerClick.groupBy({
       by: ['country'],
       where: { marketerId: id },
@@ -52,14 +54,31 @@ export async function GET(_req: NextRequest, { params }: RouteCtx) {
         projectId: true,
         country: true,
         deviceType: true,
+        userAgent: true,
+        isSuspicious: true,
         createdAt: true,
       },
+    }),
+    prisma.marketerClick.findMany({
+      where: { marketerId: id },
+      select: { isSuspicious: true, userAgent: true },
     }),
     prisma.project.findMany({
       orderBy: { id: 'asc' },
       select: { id: true, titleAr: true, titleEn: true },
     }),
   ]);
+
+  const clickKinds = splitClickCounts(allClicks);
+  const recentClicks = recentClicksRaw.map((c) => ({
+    id: c.id,
+    path: c.path,
+    projectId: c.projectId,
+    country: c.country,
+    deviceType: c.deviceType,
+    createdAt: c.createdAt,
+    isSuspicious: resolveClickSuspicious(c),
+  }));
 
   const byCountry = [...byCountryRaw].sort((a, b) => b._count._all - a._count._all);
   const byDevice = [...byDeviceRaw].sort((a, b) => b._count._all - a._count._all);
@@ -75,9 +94,13 @@ export async function GET(_req: NextRequest, { params }: RouteCtx) {
       createdAt: marketer.createdAt,
       updatedAt: marketer.updatedAt,
       clickCount: marketer._count.clicks,
+      realClickCount: clickKinds.real,
+      suspiciousClickCount: clickKinds.suspicious,
     },
     stats: {
-      total: marketer._count.clicks,
+      total: clickKinds.total,
+      real: clickKinds.real,
+      suspicious: clickKinds.suspicious,
       byCountry: byCountry.map((r) => ({ country: r.country, count: r._count._all })),
       byDevice: byDevice.map((r) => ({ deviceType: r.deviceType, count: r._count._all })),
       byPath: byPath.map((r) => ({ path: r.path, count: r._count._all })),

@@ -121,19 +121,21 @@ model Marketer {
 }
 
 model MarketerClick {
-  id         Int      @id @default(autoincrement())
-  marketerId Int
-  marketer   Marketer @relation(fields: [marketerId], references: [id], onDelete: Cascade)
-  path       String   @default("/")
-  projectId  Int?
-  country    String   @default("Unknown")
-  deviceType String   @default("unknown")
-  userAgent  String   @default("")
-  createdAt  DateTime @default(now())
+  id           Int      @id @default(autoincrement())
+  marketerId   Int
+  marketer     Marketer @relation(fields: [marketerId], references: [id], onDelete: Cascade)
+  path         String   @default("/")
+  projectId    Int?
+  country      String   @default("Unknown")
+  deviceType   String   @default("unknown")
+  userAgent    String   @default("")
+  isSuspicious Boolean  @default(false)
+  createdAt    DateTime @default(now())
 
   @@index([marketerId, createdAt])
   @@index([marketerId, country])
   @@index([marketerId, deviceType])
+  @@index([marketerId, isSuspicious])
 }
 
 model CampaignLanding {
@@ -168,14 +170,16 @@ model CampaignLandingLink {
 }
 
 model CampaignLandingLinkClick {
-  id         Int                 @id @default(autoincrement())
-  linkId     Int
-  link       CampaignLandingLink @relation(fields: [linkId], references: [id], onDelete: Cascade)
-  country    String              @default("Unknown")
-  deviceType String              @default("unknown")
-  userAgent  String              @default("")
-  createdAt  DateTime            @default(now())
+  id           Int                 @id @default(autoincrement())
+  linkId       Int
+  link         CampaignLandingLink @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  country      String              @default("Unknown")
+  deviceType   String              @default("unknown")
+  userAgent    String              @default("")
+  isSuspicious Boolean             @default(false)
+  createdAt    DateTime            @default(now())
 
   @@index([linkId, createdAt])
   @@index([linkId, country])
+  @@index([linkId, isSuspicious])
 }

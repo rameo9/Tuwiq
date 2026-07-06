@@ -1,5 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { isSuspiciousClick } from '@/lib/click-classify';
 import { normalizeMarketerSlug, parseDeviceType } from '@/lib/marketer-utils';
 import { getUserAgent, resolveCountry } from '@/lib/request-geo';
 
@@ -37,6 +38,7 @@ export async function recordMarketerClick(input: RecordClickInput): Promise<bool
       country,
       deviceType,
       userAgent: ua,
+      isSuspicious: isSuspiciousClick(ua),
     },
   });
 

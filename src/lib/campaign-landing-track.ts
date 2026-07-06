@@ -1,5 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { isSuspiciousClick } from '@/lib/click-classify';
 import { normalizeCampaignSlug, resolveCampaignLinkDestination } from '@/lib/campaign-landing';
 import { parseDeviceType } from '@/lib/marketer-utils';
 import { getUserAgent, resolveCountry } from '@/lib/request-geo';
@@ -33,6 +34,7 @@ export async function recordCampaignLinkClick(input: {
       country,
       deviceType,
       userAgent: ua,
+      isSuspicious: isSuspiciousClick(ua),
     },
   });
 

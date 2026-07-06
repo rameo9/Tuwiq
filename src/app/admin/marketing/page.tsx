@@ -32,12 +32,16 @@ type MarketerRow = {
   enabled: boolean;
   notes: string;
   clickCount: number;
+  realClickCount: number;
+  suspiciousClickCount: number;
 };
 
 type MarketerDetail = {
   marketer: MarketerRow;
   stats: {
     total: number;
+    real: number;
+    suspicious: number;
     byCountry: { country: string; count: number }[];
     byDevice: { deviceType: string; count: number }[];
     byPath: { path: string; count: number }[];
@@ -268,10 +272,18 @@ export default function AdminMarketingPage() {
                       <p className="text-dark-400 text-sm font-mono truncate">/r/{m.slug}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 shrink-0">
-                    <div className="text-center px-4 py-2 rounded-xl bg-dark-800">
-                      <div className="text-2xl font-bold text-gold-400">{m.clickCount}</div>
-                      <div className="text-xs text-dark-400">نقرة</div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <div className="text-center px-3 py-2 rounded-xl bg-dark-800 min-w-[52px]">
+                      <div className="text-xl font-bold text-green-400">
+                        {m.realClickCount ?? 0}
+                      </div>
+                      <div className="text-[10px] text-dark-400">حقيقية</div>
+                    </div>
+                    <div className="text-center px-3 py-2 rounded-xl bg-dark-800 min-w-[52px]">
+                      <div className="text-xl font-bold text-amber-500">
+                        {m.suspiciousClickCount ?? 0}
+                      </div>
+                      <div className="text-[10px] text-dark-400">مشبوهة</div>
                     </div>
                     {open ? (
                       <ChevronUp className="w-5 h-5 text-dark-400" />
@@ -359,6 +371,21 @@ export default function AdminMarketingPage() {
                             <Loader2 className="w-8 h-8 animate-spin text-gold-500" />
                           </div>
                         ) : detail?.marketer.id === m.id ? (
+                          <>
+                          <div className="flex flex-wrap gap-4">
+                            <div className="flex-1 min-w-[140px] rounded-xl bg-green-500/10 border border-green-500/20 p-4 text-center">
+                              <div className="text-3xl font-bold text-green-400">
+                                {detail.stats.real}
+                              </div>
+                              <div className="text-sm text-dark-400 mt-1">نقرات حقيقية</div>
+                            </div>
+                            <div className="flex-1 min-w-[140px] rounded-xl bg-amber-500/10 border border-amber-500/20 p-4 text-center">
+                              <div className="text-3xl font-bold text-amber-500">
+                                {detail.stats.suspicious}
+                              </div>
+                              <div className="text-sm text-dark-400 mt-1">نقرات مشبوهة</div>
+                            </div>
+                          </div>
                           <div className="grid lg:grid-cols-2 gap-6">
                             <div className="rounded-xl bg-dark-900/60 p-4">
                               <h4 className="text-white font-medium mb-4 flex items-center gap-2">
@@ -445,6 +472,7 @@ export default function AdminMarketingPage() {
                               )}
                             </div>
                           </div>
+                          </>
                         ) : null}
 
                         <div className="flex justify-end">
